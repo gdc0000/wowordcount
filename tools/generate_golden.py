@@ -9,7 +9,9 @@ asymmetric semantics — EXACT term hits add +1 per distinct type present,
 WILDCARD prefix hits add the full document frequency (+f). The originally
 copied snippet added full frequency for exact hits too; exact vs wildcard
 counting is split accordingly (and detected lists de-duplicated) so the
-fixture mirrors app/text_analysis.py / R counter.R.
+fixture mirrors app/text_analysis.py / R counter.R. Wildcard contributions
+accumulate once per MATCHING PREFIX (no dedup across overlapping prefixes
+of the same category), replicating upstream _match_prefix_categories().
 """
 import json
 import re
@@ -97,12 +99,13 @@ def main():
                 if tok in exact_single[cat]:
                     counts[cat] += 1
                     detected[cat].append(tok)
-            # R8: wildcard prefix hits add full frequency +f, once per
-            # category even when several prefixes match.
+            # Upstream parity: wildcard hits add +f PER MATCHING PREFIX,
+            # so overlapping prefixes of one category each accumulate.
             for cat in categories:
-                if any(p and tok.startswith(p)
-                       for p in wildcard_single[cat]):
-                    counts[cat] += f
+                n_match = sum(1 for p in wildcard_single[cat]
+                              if p and tok.startswith(p))
+                counts[cat] += f * n_match
+                if n_match:
                     detected[cat].append(tok)
         if required and len(tokens) >= 2:
             ng = Counter(ngrams_of(tokens, sorted(required)))
@@ -112,11 +115,12 @@ def main():
                     if gram in exact_multi[cat]:
                         counts[cat] += 1
                         detected[cat].append(gram)
-                # R8: wildcard multi-word prefixes add full frequency +f.
+                # Upstream parity: +f per matching multi-word prefix.
                 for cat in categories:
-                    if any(p and gram.startswith(p)
-                           for p in wildcard_multi[cat]):
-                        counts[cat] += f
+                    n_match = sum(1 for p in wildcard_multi[cat]
+                                  if p and gram.startswith(p))
+                    counts[cat] += f * n_match
+                    if n_match:
                         detected[cat].append(gram)
         rec["counts"] = counts
         # Dedup mirrors wc_count_document, which records each matched term

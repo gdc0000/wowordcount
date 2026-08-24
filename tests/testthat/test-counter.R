@@ -65,6 +65,13 @@ test_that("exact and wildcard contributions combine like upstream", {
   expect_equal(unname(res$counts["X"]), 4)
 })
 
+test_that("overlapping prefixes accumulate once each like upstream", {
+  d <- make_dict("DicTerm\tX", "c*\tX", "ca*\tX", "dog\tX")
+  cfg <- wc_prepare_config(d)
+  res <- wc_count_document(c("cat", "dog"), cfg)
+  expect_equal(unname(res$counts["X"]), 3)  # cat matches c* and ca* -> 2; dog -> 1
+})
+
 test_that("empty document yields zeros", {
   d <- make_dict("DicTerm\tA", "word\tX")
   cfg <- wc_prepare_config(d)

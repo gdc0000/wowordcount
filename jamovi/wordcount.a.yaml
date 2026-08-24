@@ -12,7 +12,7 @@ options:
     - name: textVar
       title: Text Variable
       type: Variable
-      permitted: [id, nominal]
+      permitted: [id, nominal, nominaltext]
 
     - name: dictionary
       title: Dictionary (paste TSV)

@@ -7,6 +7,10 @@
 #   regardless of how often the type occurs in the document.
 # - WILDCARD prefix terms add the full document FREQUENCY (+f) of each
 #   matching token/n-gram type.
+# Wildcard contributions accumulate PER MATCHING PREFIX (no dedup):
+# two prefixes of the same category matching one token each add the
+# full frequency twice, replicating upstream _match_prefix_categories()
+# iteration in app/text_analysis.py.
 # A term listed both exactly and reachable through a wildcard prefix
 # therefore contributes BOTH +1 (exact) and +f (wildcard).
 
@@ -105,17 +109,19 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
 
     for (token in names(freq)) {
       f <- as.integer(freq[[token]])
-      ex <- cfg$exact_single_lookup[[token]]
-      if (is.null(ex))
-        ex <- character(0)
-      ex <- unique(ex)
-      wl <- unique(wc_trie_match(cfg$single_trie, token))
-      for (cat in ex)
-        counts[cat] <- counts[cat] + 1L
-      for (cat in wl)
+      exact_hits <- cfg$exact_single_lookup[[token]]
+      if (!is.null(exact_hits)) {
+        for (cat in unique(exact_hits))
+          counts[cat] <- counts[cat] + 1L
+        if (collect_detected)
+          for (cat in unique(exact_hits))
+            detected[[cat]] <- c(detected[[cat]], token)
+      }
+      wild_hits <- wc_trie_match(cfg$single_trie, token)
+      # duplicates INTENTIONALLY preserved (upstream parity)
+      for (cat in wild_hits) {
         counts[cat] <- counts[cat] + f
-      if (collect_detected) {
-        for (cat in unique(c(ex, wl)))
+        if (collect_detected)
           detected[[cat]] <- c(detected[[cat]], token)
       }
     }
@@ -125,17 +131,19 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
       ng_freq <- table(ngrams)
       for (ng in names(ng_freq)) {
         f <- as.integer(ng_freq[[ng]])
-        ex <- cfg$exact_multi_lookup[[ng]]
-        if (is.null(ex))
-          ex <- character(0)
-        ex <- unique(ex)
-        wl <- unique(wc_trie_match(cfg$multi_trie, ng))
-        for (cat in ex)
-          counts[cat] <- counts[cat] + 1L
-        for (cat in wl)
+        exact_hits <- cfg$exact_multi_lookup[[ng]]
+        if (!is.null(exact_hits)) {
+          for (cat in unique(exact_hits))
+            counts[cat] <- counts[cat] + 1L
+          if (collect_detected)
+            for (cat in unique(exact_hits))
+              detected[[cat]] <- c(detected[[cat]], ng)
+        }
+        wild_hits <- wc_trie_match(cfg$multi_trie, ng)
+        # duplicates INTENTIONALLY preserved (upstream parity)
+        for (cat in wild_hits) {
           counts[cat] <- counts[cat] + f
-        if (collect_detected) {
-          for (cat in unique(c(ex, wl)))
+          if (collect_detected)
             detected[[cat]] <- c(detected[[cat]], ng)
         }
       }
