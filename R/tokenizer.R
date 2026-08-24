@@ -12,7 +12,7 @@ wc_clean_document <- function(doc) {
 }
 
 wc_tokenize <- function(doc) {
-  parts <- strsplit(wc_clean_document(doc), "[[:space:]]+", perl = TRUE)[[1]]
+  parts <- strsplit(wc_clean_document(doc), "(*UCP)\\s+", perl = TRUE)[[1]]
   parts[nzchar(parts)]
 }
 

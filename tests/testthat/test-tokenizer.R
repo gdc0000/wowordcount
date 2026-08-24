@@ -17,6 +17,11 @@ test_that("tokenize drops empties and splits on any whitespace", {
   expect_length(wc_tokenize(""), 0)
 })
 
+test_that("NBSP is treated as splitting whitespace (Python parity)", {
+  expect_setequal(wc_tokenize("perch\u00E9\u00A0citt\u00E0"), c("perch\u00e9", "citt\u00e0"))
+  expect_setequal(wc_tokenize("a\u00A0b"), c("a", "b"))
+})
+
 test_that("n-grams cover requested lengths only", {
   toks <- c("the", "quick", "brown", "fox")
   ng <- wc_generate_ngrams(toks, c(2, 4))
@@ -24,7 +29,6 @@ test_that("n-grams cover requested lengths only", {
   expect_true("the quick brown fox" %in% ng)
   expect_false("the quick brown" %in% ng)
   expect_false("quick brown fox" %in% ng)
-  expect_false("the quick" %in% ng[ng == "quick brown"])
 })
 
 test_that("n-grams respect max length availability", {
