@@ -1,0 +1,155 @@
+[
+ {
+  "n_tokens": 8,
+  "n_types": 6,
+  "counts": {
+   "Intensifiers": 1,
+   "Negations": 0,
+   "Modal_Expressions": 0,
+   "Social": 0
+  },
+  "detected": {
+   "Intensifiers": [
+    "very"
+   ],
+   "Negations": [],
+   "Modal_Expressions": [],
+   "Social": []
+  }
+ },
+ {
+  "n_tokens": 0,
+  "n_types": 0,
+  "counts": {
+   "Intensifiers": 0,
+   "Negations": 0,
+   "Modal_Expressions": 0,
+   "Social": 0
+  },
+  "detected": {
+   "Intensifiers": [],
+   "Negations": [],
+   "Modal_Expressions": [],
+   "Social": []
+  }
+ },
+ {
+  "n_tokens": 0,
+  "n_types": 0,
+  "counts": {
+   "Intensifiers": 0,
+   "Negations": 0,
+   "Modal_Expressions": 0,
+   "Social": 0
+  },
+  "detected": {
+   "Intensifiers": [],
+   "Negations": [],
+   "Modal_Expressions": [],
+   "Social": []
+  }
+ },
+ {
+  "n_tokens": 11,
+  "n_types": 11,
+  "counts": {
+   "Intensifiers": 1,
+   "Negations": 1,
+   "Modal_Expressions": 1,
+   "Social": 1
+  },
+  "detected": {
+   "Intensifiers": [
+    "kind of"
+   ],
+   "Negations": [
+    "never"
+   ],
+   "Modal_Expressions": [
+    "we"
+   ],
+   "Social": [
+    "could"
+   ]
+  }
+ },
+ {
+  "n_tokens": 5,
+  "n_types": 5,
+  "counts": {
+   "Intensifiers": 0,
+   "Negations": 0,
+   "Modal_Expressions": 0,
+   "Social": 1
+  },
+  "detected": {
+   "Intensifiers": [],
+   "Negations": [],
+   "Modal_Expressions": [],
+   "Social": [
+    "cantare"
+   ]
+  }
+ },
+ {
+  "n_tokens": 10,
+  "n_types": 9,
+  "counts": {
+   "Intensifiers": 0,
+   "Negations": 0,
+   "Modal_Expressions": 0,
+   "Social": 1
+  },
+  "detected": {
+   "Intensifiers": [],
+   "Negations": [],
+   "Modal_Expressions": [],
+   "Social": [
+    "cani"
+   ]
+  }
+ },
+ {
+  "n_tokens": 5,
+  "n_types": 3,
+  "counts": {
+   "Intensifiers": 0,
+   "Negations": 0,
+   "Modal_Expressions": 0,
+   "Social": 5
+  },
+  "detected": {
+   "Intensifiers": [],
+   "Negations": [],
+   "Modal_Expressions": [],
+   "Social": [
+    "can",
+    "cani",
+    "canzoni"
+   ]
+  }
+ },
+ {
+  "n_tokens": 11,
+  "n_types": 10,
+  "counts": {
+   "Intensifiers": 1,
+   "Negations": 2,
+   "Modal_Expressions": 0,
+   "Social": 1
+  },
+  "detected": {
+   "Intensifiers": [
+    "extremely"
+   ],
+   "Negations": [
+    "never",
+    "not"
+   ],
+   "Modal_Expressions": [],
+   "Social": [
+    "cannot"
+   ]
+  }
+ }
+]
