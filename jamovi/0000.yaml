@@ -1,0 +1,15 @@
+---
+title: wowordcount
+name: wowordcount
+version: 0.1.0
+jms: '1.0'
+authors:
+  - Gabriele Di Cicco
+maintainer: Gabriele Di Cicco
+description: LIWC-style word counting from user-supplied wordlists.
+datasets:
+    - name: demo_texts
+      path: demo_texts.csv
+      description: Fictional short texts for trying the Word Count analysis
+      tags:
+        - wordcount

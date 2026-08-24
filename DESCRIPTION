@@ -1,7 +1,7 @@
 Package: wowordcount
 Type: Package
 Title: LIWC-style Word Count Analyses
-Version: 0.0.0
+Version: 0.1.0
 Authors@R: person("Gabriele", "Di Cicco", role = c("aut", "cre"),
     email = "gabriele.dicicco@gmail.com")
 Author: Gabriele Di Cicco [aut, cre]
