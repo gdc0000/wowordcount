@@ -40,11 +40,20 @@ wordcountClass <- R6::R6Class(
             self$results$statusNote$setVisible(TRUE)
             self$results$statusNote$setContent(note)
 
-            if (all(results$n_tokens == 0))
+            word_count_cols <- grep("_word_count$", names(results),
+                                    value = TRUE)
+            if (all(results$n_tokens == 0)) {
                 tbl$setNote(
                     "noHits",
                     "No tokens found in the selected text variable."
                 )
+            } else if (length(word_count_cols) > 0L &&
+                       all(unlist(results[word_count_cols]) == 0)) {
+                tbl$setNote(
+                    "noHits",
+                    "The dictionary matched no words in the selected texts."
+                )
+            }
 
             if (self$options$saveResults &&
                 self$results$savedResults$isNotFilled()) {

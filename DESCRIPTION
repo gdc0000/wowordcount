@@ -12,5 +12,5 @@ Description: Counts words and word patterns in text documents using
 License: MIT
 Encoding: UTF-8
 Depends: R (>= 4.2)
-Imports: jmvcore (>= 2.4), methods
+Imports: jmvcore (>= 2.4), methods, R6
 Suggests: jsonlite

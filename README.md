@@ -90,11 +90,15 @@ lengths actually demanded by the dictionary (never eagerly, maximum length 5),
 so memory use stays low even for large corpora. Everything runs in base R;
 there is no Python dependency at analysis time.
 
+A live progress bar and incremental feedback are planned; current builds
+report a summary line after completion.
+
 ## Parity
 
 Numeric results (tokenization, n-gram rule, counting semantics) were verified
-against the original Streamlit WordCount implementation via golden tests
-bundled with the module's test suite.
+against a stdlib-only replica of the original counting logic
+(`tools/generate_golden.py`, itself a verbatim port kept in-tree); its outputs
+are bundled as golden fixtures with the module's test suite.
 
 ## Try it
 
