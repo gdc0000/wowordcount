@@ -1,6 +1,14 @@
 # Per-document counting engine: parity port of _prepare_analysis_config,
 # _build_prefix_trie, _match_prefix_categories, _analyze_document
 # from app/text_analysis.py (WordCount).
+#
+# Counting is asymmetric, mirroring app/text_analysis.py:
+# - EXACT dictionary terms add +1 per distinct token/n-gram TYPE present,
+#   regardless of how often the type occurs in the document.
+# - WILDCARD prefix terms add the full document FREQUENCY (+f) of each
+#   matching token/n-gram type.
+# A term listed both exactly and reachable through a wildcard prefix
+# therefore contributes BOTH +1 (exact) and +f (wildcard).
 
 wc_trie_new <- function() new.env(parent = emptyenv())
 
@@ -97,14 +105,17 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
 
     for (token in names(freq)) {
       f <- as.integer(freq[[token]])
-      hits <- character(0)
-      if (!is.null(cfg$exact_single_lookup[[token]]))
-        hits <- c(hits, cfg$exact_single_lookup[[token]])
-      hits <- c(hits, wc_trie_match(cfg$single_trie, token))
-      hits <- unique(hits)
-      for (cat in hits) {
+      ex <- cfg$exact_single_lookup[[token]]
+      if (is.null(ex))
+        ex <- character(0)
+      ex <- unique(ex)
+      wl <- unique(wc_trie_match(cfg$single_trie, token))
+      for (cat in ex)
+        counts[cat] <- counts[cat] + 1L
+      for (cat in wl)
         counts[cat] <- counts[cat] + f
-        if (collect_detected)
+      if (collect_detected) {
+        for (cat in unique(c(ex, wl)))
           detected[[cat]] <- c(detected[[cat]], token)
       }
     }
@@ -114,14 +125,17 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
       ng_freq <- table(ngrams)
       for (ng in names(ng_freq)) {
         f <- as.integer(ng_freq[[ng]])
-        hits <- character(0)
-        if (!is.null(cfg$exact_multi_lookup[[ng]]))
-          hits <- c(hits, cfg$exact_multi_lookup[[ng]])
-        hits <- c(hits, wc_trie_match(cfg$multi_trie, ng))
-        hits <- unique(hits)
-        for (cat in hits) {
+        ex <- cfg$exact_multi_lookup[[ng]]
+        if (is.null(ex))
+          ex <- character(0)
+        ex <- unique(ex)
+        wl <- unique(wc_trie_match(cfg$multi_trie, ng))
+        for (cat in ex)
+          counts[cat] <- counts[cat] + 1L
+        for (cat in wl)
           counts[cat] <- counts[cat] + f
-          if (collect_detected)
+        if (collect_detected) {
+          for (cat in unique(c(ex, wl)))
             detected[[cat]] <- c(detected[[cat]], ng)
         }
       }
