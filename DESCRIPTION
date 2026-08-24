@@ -2,7 +2,10 @@ Package: wowordcount
 Type: Package
 Title: LIWC-style Word Count Analyses
 Version: 0.0.0
-Authors@R: person("Gabriele", "Di Cicco", role = c("aut", "cre"))
+Authors@R: person("Gabriele", "Di Cicco", role = c("aut", "cre"),
+    email = "gabriele.dicicco@gmail.com")
+Author: Gabriele Di Cicco [aut, cre]
+Maintainer: Gabriele Di Cicco <gabriele.dicicco@gmail.com>
 Description: Counts words and word patterns in text documents using
     user-supplied dictionaries, in the style of LIWC. Native jamovi port of
     the WordCount application.

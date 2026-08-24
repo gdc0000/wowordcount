@@ -1,11 +1,29 @@
 ---
-name:  wordcount
-title: Word Count
+name: wordcount
+title: Word Count (LIWC-style)
 menuGroup: Text
-version: '1.0.0'
+version: '0.1.0'
 jas: '1.2'
 
 options:
     - name: data
       type: Data
-...
+
+    - name: textVar
+      title: Text Variable
+      type: Variable
+      permitted: [id, nominal]
+
+    - name: dictionary
+      title: Dictionary (paste TSV)
+      type: String
+      default: ''
+
+    - name: detectedWords
+      title: Include detected words columns
+      type: Bool
+      default: false
+
+    - name: saveResults
+      title: Add results to spreadsheet
+      type: Output

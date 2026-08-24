@@ -1,11 +1,35 @@
 ---
-name:  wordcount
-title: Word Count
-jrs:   '1.1'
+name: wordcount
+title: Word Count (LIWC-style)
+jrs: '1.1'
 
 items:
-    - name:  text
-      title: Word Count
-      type:  Preformatted
+    - name: dictSummary
+      title: Dictionary Summary
+      type: Table
+      rows: 0
+      columns:
+        - name: category
+          title: Category
+          type: text
+        - name: exactTerms
+          title: Exact Terms
+          type: integer
+        - name: wildcardPrefixes
+          title: Wildcard Prefixes
+          type: integer
+        - name: multiWordTerms
+          title: Multi-word Terms
+          type: integer
 
-...
+    - name: statusNote
+      title: Status
+      type: Preformatted
+      visible: false
+
+    - name: savedResults
+      title: Add results to spreadsheet
+      type: Output
+      items: (0)
+      varTitle: '`Word Count result`'
+      measureType: continuous
