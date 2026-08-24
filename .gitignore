@@ -1,0 +1,10 @@
+# jamovi
+/build/
+/build-*/
+*.jmo
+# R
+.Rhistory
+.RData
+*.tar.gz
+# python
+__pycache__/

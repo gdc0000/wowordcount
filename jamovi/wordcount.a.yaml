@@ -1,0 +1,11 @@
+---
+name:  wordcount
+title: Word Count
+menuGroup: Text
+version: '1.0.0'
+jas: '1.2'
+
+options:
+    - name: data
+      type: Data
+...

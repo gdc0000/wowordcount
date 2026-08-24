@@ -1,0 +1,11 @@
+---
+name:  wordcount
+title: Word Count
+jrs:   '1.1'
+
+items:
+    - name:  text
+      title: Word Count
+      type:  Preformatted
+
+...
