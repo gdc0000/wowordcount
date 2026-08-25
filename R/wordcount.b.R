@@ -1,4 +1,4 @@
-﻿#' @export
+#' @export
 wordcountClass <- R6::R6Class(
     "wordcountClass",
     inherit = wordcountBase,
