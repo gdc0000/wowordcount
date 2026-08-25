@@ -8,6 +8,11 @@ items:
       title: Dictionary Summary
       type: Table
       rows: 0
+      clearWith:
+        - textVar
+        - lexiconSource
+        - lexicon
+        - dictionary
       columns:
         - name: category
           title: Category
@@ -22,14 +27,49 @@ items:
           title: Multi-word Terms
           type: integer
 
+    - name: catSummary
+      title: Category Counts Summary
+      type: Table
+      rows: 0
+      clearWith:
+        - textVar
+        - lexiconSource
+        - lexicon
+        - dictionary
+      columns:
+        - name: category
+          title: Category
+          type: text
+        - name: totalCount
+          title: Total Matches
+          type: integer
+        - name: meanCount
+          title: Mean / Doc
+          type: number
+        - name: meanPerc
+          title: Mean % of Tokens
+          type: number
+          format: zto
+        - name: docCount
+          title: Docs with Matches
+          type: integer
+        - name: docPerc
+          title: '% of Docs'
+          type: number
+          format: zto
+
     - name: statusNote
       title: Status
       type: Preformatted
       visible: false
 
-    - name: savedResults
-      title: Add results to spreadsheet
+    - name: saveResults
+      title: Append results to the data set
       type: Output
-      items: (0)
-      varTitle: '`Word Count result`'
-      measureType: continuous
+      initInRun: true
+      clearWith:
+        - textVar
+        - lexiconSource
+        - lexicon
+        - dictionary
+        - detectedWords

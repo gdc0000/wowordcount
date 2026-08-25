@@ -90,8 +90,9 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         dictSummary = function() private$.items[["dictSummary"]],
+        catSummary = function() private$.items[["catSummary"]],
         statusNote = function() private$.items[["statusNote"]],
-        savedResults = function() private$.items[["savedResults"]]),
+        saveResults = function() private$.items[["saveResults"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -104,6 +105,11 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="dictSummary",
                 title="Dictionary Summary",
                 rows=0,
+                clearWith=list(
+                    "textVar",
+                    "lexiconSource",
+                    "lexicon",
+                    "dictionary"),
                 columns=list(
                     list(
                         `name`="category", 
@@ -121,6 +127,43 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="multiWordTerms", 
                         `title`="Multi-word Terms", 
                         `type`="integer"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="catSummary",
+                title="Category Counts Summary",
+                rows=0,
+                clearWith=list(
+                    "textVar",
+                    "lexiconSource",
+                    "lexicon",
+                    "dictionary"),
+                columns=list(
+                    list(
+                        `name`="category", 
+                        `title`="Category", 
+                        `type`="text"),
+                    list(
+                        `name`="totalCount", 
+                        `title`="Total Matches", 
+                        `type`="integer"),
+                    list(
+                        `name`="meanCount", 
+                        `title`="Mean / Doc", 
+                        `type`="number"),
+                    list(
+                        `name`="meanPerc", 
+                        `title`="Mean % of Tokens", 
+                        `type`="number", 
+                        `format`="zto"),
+                    list(
+                        `name`="docCount", 
+                        `title`="Docs with Matches", 
+                        `type`="integer"),
+                    list(
+                        `name`="docPerc", 
+                        `title`="% of Docs", 
+                        `type`="number", 
+                        `format`="zto"))))
             self$add(jmvcore::Preformatted$new(
                 options=options,
                 name="statusNote",
@@ -128,11 +171,15 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible=FALSE))
             self$add(jmvcore::Output$new(
                 options=options,
-                name="savedResults",
-                title="Add results to spreadsheet",
-                items="(0)",
-                varTitle="`Word Count result`",
-                measureType="continuous"))}))
+                name="saveResults",
+                title="Append results to the data set",
+                initInRun=TRUE,
+                clearWith=list(
+                    "textVar",
+                    "lexiconSource",
+                    "lexicon",
+                    "dictionary",
+                    "detectedWords")))}))
 
 wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "wordcountBase",
@@ -177,8 +224,9 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$dictSummary} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$catSummary} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$statusNote} \tab \tab \tab \tab \tab a preformatted \cr
-#'   \code{results$savedResults} \tab \tab \tab \tab \tab an output \cr
+#'   \code{results$saveResults} \tab \tab \tab \tab \tab an output \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

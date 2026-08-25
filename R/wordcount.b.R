@@ -57,9 +57,30 @@ wordcountClass <- R6::R6Class(
             results <- wc_analyze_corpus(texts, dict,
                                          collect_detected = want_detected)
 
+            # category summary table
+            cat_tbl <- self$results$catSummary
+            n_docs <- nrow(results)
+            for (cat in dict$categories) {
+                san <- wc_sanitize_name(cat)
+                count_col <- paste0(san, "_word_count")
+                perc_col <- paste0(san, "_word_perc")
+                counts <- results[[count_col]]
+                percs <- results[[perc_col]]
+                doc_hits <- sum(counts > 0)
+                cat_tbl$addRow(rowKey = cat, values = list(
+                    category = cat,
+                    totalCount = sum(counts),
+                    meanCount = if (n_docs > 0) mean(counts) else 0,
+                    meanPerc = if (n_docs > 0) mean(percs) else 0,
+                    docCount = doc_hits,
+                    docPerc = if (n_docs > 0) doc_hits / n_docs else 0
+                ))
+            }
+
+            total_tokens <- sum(results$n_tokens)
             note <- sprintf(
-                "%d documents analysed, %d categories (source: %s).",
-                nrow(results), length(dict$categories),
+                "%d documents analysed, %d categories, %d total tokens (source: %s).",
+                nrow(results), length(dict$categories), total_tokens,
                 attr(dict, "source")
             )
             self$results$statusNote$setVisible(TRUE)
@@ -80,8 +101,8 @@ wordcountClass <- R6::R6Class(
                 )
             }
 
-            if (self$options$saveResults &&
-                self$results$savedResults$isNotFilled()) {
+            if (isTRUE(self$options$saveResults) &&
+                self$results$saveResults$isNotFilled()) {
                 keys <- names(results)
                 titles <- keys
                 descriptions <- vapply(keys, function(k) {
@@ -99,11 +120,11 @@ wordcountClass <- R6::R6Class(
                 measure_types <- ifelse(
                     grepl("_detected_words$", keys), "nominal", "continuous")
 
-                self$results$savedResults$set(
+                self$results$saveResults$set(
                     keys, titles, descriptions, measure_types)
-                self$results$savedResults$setRowNums(rownames(self$data))
+                self$results$saveResults$setRowNums(rownames(self$data))
                 for (k in keys)
-                    self$results$savedResults$setValues(
+                    self$results$saveResults$setValues(
                         results[[k]], key = k)
             }
 
