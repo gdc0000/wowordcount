@@ -1,42 +1,26 @@
-wc_has_builder_rows <- function(lexicon) {
-    if (is.null(lexicon))
-        return(FALSE)
-    for (entry in lexicon) {
-        has_category <- !is.null(entry$category) &&
-            length(entry$category) > 0L &&
-            nzchar(trimws(as.character(entry$category)[1]))
-        has_terms <- !is.null(entry$terms) &&
-            length(entry$terms) > 0L &&
-            nzchar(trimws(as.character(entry$terms)[1]))
-        if (has_category && has_terms)
-            return(TRUE)
-    }
-    FALSE
-}
-
-wc_resolve_dictionary <- function(lexicon, dict_text) {
+wc_resolve_dictionary <- function(lexicon, dict_text, source = "builder") {
     dict <- NULL
-    used_builder <- FALSE
 
-    if (wc_has_builder_rows(lexicon)) {
-        candidate <- wc_parse_lexicon_rows(lexicon)
-        if (length(candidate$categories) > 0L) {
-            dict <- candidate
-            used_builder <- TRUE
-        }
-    }
-
-    if (!used_builder && !is.null(dict_text) &&
-        nchar(trimws(dict_text)) > 0L) {
+    if (identical(source, "paste")) {
+        if (is.null(dict_text) || nchar(trimws(dict_text)) == 0L)
+            stop("Lexicon source is 'Paste a dictionary' but the ",
+                 "dictionary box is empty. Paste your wordlist, or switch ",
+                 "the lexicon source back to 'Build in the app'.",
+                 call. = FALSE)
         dict <- wc_parse_dictionary(dict_text)
+        src <- "pasted dictionary"
+    } else {
+        dict <- wc_parse_lexicon_rows(lexicon)
+        if (length(dict$categories) == 0L)
+            stop("Lexicon source is 'Build in the app' but the lexicon ",
+                 "builder has no complete rows (a category with at least ",
+                 "one term). Add one, or switch the lexicon source to ",
+                 "'Paste a dictionary'.",
+                 call. = FALSE)
+        src <- "lexicon builder"
     }
 
-    if (is.null(dict))
-        stop("Add categories and terms in the lexicon builder, ",
-             "or paste a dictionary.")
-
-    attr(dict, "source") <- if (used_builder) "lexicon builder"
-                            else "pasted dictionary"
+    attr(dict, "source") <- src
     dict
 }
 
@@ -47,7 +31,8 @@ wordcountClass <- R6::R6Class(
     private = list(
         .run = function() {
             dict <- wc_resolve_dictionary(self$options$lexicon,
-                                          self$options$dictionary)
+                                          self$options$dictionary,
+                                          self$options$lexiconSource)
 
             # summary table
             tbl <- self$results$dictSummary

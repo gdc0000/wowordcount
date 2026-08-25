@@ -58,31 +58,39 @@ Rules:
 
 ## Building a lexicon in the UI
 
-The analysis window has two ways to supply a dictionary.
+The analysis window offers **two mutually exclusive dictionary sources**,
+selected with the *Lexicon source* radio at the top:
 
-**Lexicon builder (recommended).** The *Lexicon builder* list sits right under
-the Text Variable box and opens with three example rows you can edit or
-delete. Click **Add category** for each category, then fill in its terms as a
-comma-separated list:
+- **Build in the app** (default): the *Lexicon builder* list opens with three
+  example rows you can edit or delete. Click **Add category** for each
+  category, then fill in its terms as a comma-separated list.
 
-| Category | Terms (comma-separated) |
-| --- | --- |
-| Intensifiers | very, extremely |
-| Negations | not, never |
-| Modal_Expressions | can*, might be |
+  | Category | Terms (comma-separated) |
+  | --- | --- |
+  | Intensifiers | very, extremely |
+  | Negations | not, never |
+  | Modal_Expressions | can*, might be |
 
-Rules mirror the pasted format: a trailing `*` marks a **prefix wildcard**,
-terms may contain internal spaces (**multi-word terms**), duplicate rows for
-the same category are merged, and rows without terms are ignored. The status
-note above the results always tells you which source was used
+- **Paste a dictionary**: a text box accepts the TSV format described above or
+  the flat one-line format
+  (`very:Intensifiers; not:Negations; can*:Modal_Expressions`). jamovi only
+  offers single-line text boxes, so very large dictionaries are easier to
+  enter through the builder.
+
+Only the selected source is used; the other is ignored entirely. The status
+note above the results always tells you which one was active
 (`source: lexicon builder` or `source: pasted dictionary`).
 
-**Paste box (bulk import).** Under *Or paste a whole dictionary*, collapsed by
-default, a single-line box accepts the TSV format described above or the flat
-one-line format (`very:Intensifiers; not:Negations; can*:Modal_Expressions`).
-jamovi only offers single-line text boxes, so very large dictionaries are
-easier to enter through the builder. When both inputs are filled in, the
-**lexicon builder takes priority**.
+Rules for both sources: a trailing `*` marks a **prefix wildcard**, terms may
+contain internal spaces (**multi-word terms**), duplicate rows for the same
+category are merged, and rows without terms are ignored.
+
+## Saving results to the data set
+
+Tick **Append results to the data set** under the collapsed **Save** section
+(like EFA/PCA factor scores) and run: the per-document columns
+(`n_tokens`, `n_types`, `{Cat}_word_count`, `{Cat}_word_perc`, and optionally
+`{Cat}_detected_words`) are appended directly to your spreadsheet.
 
 ## Counting semantics
 

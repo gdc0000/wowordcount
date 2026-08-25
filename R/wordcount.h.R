@@ -7,6 +7,7 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             textVar = NULL,
+            lexiconSource = "builder",
             lexicon = list(
                 list(category="Positivity", terms="very, good, happy, amazing"),
                 list(category="Negations", terms="not, non, never, no, niente"),
@@ -26,6 +27,13 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 permitted=list(
                     "id",
                     "factor"))
+            private$..lexiconSource <- jmvcore::OptionList$new(
+                "lexiconSource",
+                lexiconSource,
+                options=list(
+                    "builder",
+                    "paste"),
+                default="builder")
             private$..lexicon <- jmvcore::OptionArray$new(
                 "lexicon",
                 lexicon,
@@ -55,6 +63,7 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "saveResults")
 
             self$.addOption(private$..textVar)
+            self$.addOption(private$..lexiconSource)
             self$.addOption(private$..lexicon)
             self$.addOption(private$..dictionary)
             self$.addOption(private$..detectedWords)
@@ -62,12 +71,14 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         }),
     active = list(
         textVar = function() private$..textVar$value,
+        lexiconSource = function() private$..lexiconSource$value,
         lexicon = function() private$..lexicon$value,
         dictionary = function() private$..dictionary$value,
         detectedWords = function() private$..detectedWords$value,
         saveResults = function() private$..saveResults$value),
     private = list(
         ..textVar = NA,
+        ..lexiconSource = NA,
         ..lexicon = NA,
         ..dictionary = NA,
         ..detectedWords = NA,
@@ -149,15 +160,19 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' 
 #' @param data .
 #' @param textVar .
+#' @param lexiconSource Where the dictionary comes from. Exactly one source is
+#'   used: \code{builder} counts with the categories defined in the lexicon
+#'   builder below; \code{paste} counts with the wordlist pasted in the paste
+#'   box.
 #' @param lexicon Lexicon rows built in the UI: one category per row with its
 #'   terms as a comma-separated list. A trailing * marks a prefix wildcard;
-#'   multi-word terms are allowed. Takes priority over the pasted dictionary.
-#'   The default rows are a working example: edit or remove them.
+#'   multi-word terms are allowed. The default rows are a working example: edit
+#'   or remove them. Only used when the lexicon source is set to \code{Build in
+#'   the app}.
 #' @param dictionary Paste your wordlist. Two formats are accepted: 1) TSV
 #'   with a DicTerm header (multi-line), or 2) single-line flat format:
-#'   very:Intensifiers; not:Negations; can*:Modal_Expressions Note: the lexicon
-#'   builder above takes priority when it has at least one complete row
-#'   (category plus terms).
+#'   very:Intensifiers; not:Negations; can*:Modal_Expressions Only used when the
+#'   lexicon source is set to \code{Paste a dictionary}.
 #' @param detectedWords .
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -176,6 +191,7 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 wordcount <- function(
     data,
     textVar,
+    lexiconSource = "builder",
     lexicon = list(
                 list(category="Positivity", terms="very, good, happy, amazing"),
                 list(category="Negations", terms="not, non, never, no, niente"),
@@ -195,6 +211,7 @@ wordcount <- function(
 
     options <- wordcountOptions$new(
         textVar = textVar,
+        lexiconSource = lexiconSource,
         lexicon = lexicon,
         dictionary = dictionary,
         detectedWords = detectedWords)

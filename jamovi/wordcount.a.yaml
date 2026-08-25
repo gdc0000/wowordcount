@@ -14,6 +14,20 @@ options:
       type: Variable
       permitted: [id, factor]
 
+    - name: lexiconSource
+      title: Lexicon source
+      type: List
+      options:
+        - title: Build in the app
+          name: builder
+        - title: Paste a dictionary
+          name: paste
+      default: builder
+      description: |
+        Where the dictionary comes from. Exactly one source is used:
+        `builder` counts with the categories defined in the lexicon builder
+        below; `paste` counts with the wordlist pasted in the paste box.
+
     - name: lexicon
       title: 'Lexicon builder: category and its terms'
       type: Array
@@ -36,8 +50,9 @@ options:
       description: |
         Lexicon rows built in the UI: one category per row with its terms as a
         comma-separated list. A trailing * marks a prefix wildcard; multi-word
-        terms are allowed. Takes priority over the pasted dictionary.
+        terms are allowed.
         The default rows are a working example: edit or remove them.
+        Only used when the lexicon source is set to `Build in the app`.
 
     - name: dictionary
       title: Dictionary
@@ -47,8 +62,7 @@ options:
         Paste your wordlist. Two formats are accepted:
         1) TSV with a DicTerm header (multi-line), or
         2) single-line flat format: very:Intensifiers; not:Negations; can*:Modal_Expressions
-        Note: the lexicon builder above takes priority when it has at least one
-        complete row (category plus terms).
+        Only used when the lexicon source is set to `Paste a dictionary`.
 
     - name: detectedWords
       title: Include detected words columns
@@ -56,5 +70,5 @@ options:
       default: false
 
     - name: saveResults
-      title: Add results to spreadsheet
+      title: Append results to the data set
       type: Output
