@@ -14,13 +14,13 @@ test_that("required lengths derived from dictionary", {
   expect_setequal(cfg$required_lengths, c(2L, 3L, 4L, 5L))
 })
 
-test_that("simple exact counting counts distinct types", {
+test_that("counts full frequency per category", {
   d <- make_dict("DicTerm\tNeg", "not\tX", "never\tX")
   cfg <- wc_prepare_config(d)
   res <- wc_count_document(c("not", "now", "not", "never"), cfg)
   expect_equal(res$n_tokens, 4)
   expect_equal(res$n_types, 3)
-  expect_equal(unname(res$counts["Neg"]), 2)
+  expect_equal(unname(res$counts["Neg"]), 3)  # not x2 + never x1
 })
 
 test_that("wildcard prefix counts full frequency", {
@@ -37,7 +37,7 @@ test_that("multi-word exact match via ngrams", {
   cfg <- wc_prepare_config(d)
   res <- wc_count_document(
     c("some", "kind", "of", "cake", "kind", "of"), cfg)
-  expect_equal(unname(res$counts["C"]), 1)
+  expect_equal(unname(res$counts["C"]), 2)  # "kind of" occurs twice
 })
 
 test_that("multi-word wildcard prefix matches", {
@@ -52,24 +52,31 @@ test_that("term shared across categories counted in both", {
   d <- make_dict("DicTerm\tA\tB", "yes\tX\tX")
   cfg <- wc_prepare_config(d)
   res <- wc_count_document(c("yes", "yes"), cfg)
-  expect_equal(unname(res$counts["A"]), 1)
-  expect_equal(unname(res$counts["B"]), 1)
+  expect_equal(unname(res$counts["A"]), 2)
+  expect_equal(unname(res$counts["B"]), 2)
 })
 
-test_that("exact and wildcard contributions combine like upstream", {
+test_that("exact and wildcard contributions dedup per category", {
   d <- make_dict("DicTerm\tX", "dog\tX", "do*\tX")
   cfg <- wc_prepare_config(d)
   res <- wc_count_document(c("dog", "dog", "dot"), cfg)
-  # exact: "dog" counted once as a distinct type (+1);
-  # wildcard: dog (f=2) + dot (f=1) = 3; total 4
-  expect_equal(unname(res$counts["X"]), 4)
+  # "dog" matches exact AND wildcard but counts once with f=2;
+  # "dot" matches the wildcard only (+1); total 3
+  expect_equal(unname(res$counts["X"]), 3)
 })
 
-test_that("overlapping prefixes accumulate once each like upstream", {
+test_that("overlapping prefixes deduplicate per category like classic LIWC", {
   d <- make_dict("DicTerm\tX", "c*\tX", "ca*\tX", "dog\tX")
   cfg <- wc_prepare_config(d)
   res <- wc_count_document(c("cat", "dog"), cfg)
-  expect_equal(unname(res$counts["X"]), 3)  # cat matches c* and ca* -> 2; dog -> 1
+  expect_equal(unname(res$counts["X"]), 2)  # cat: two prefixes, one category -> 1; dog -> 1
+})
+
+test_that("exact and wildcard in same category count once per token", {
+  d <- make_dict("DicTerm\tX", "dog\tX", "do*\tX")
+  cfg <- wc_prepare_config(d)
+  res <- wc_count_document(c("dog"), cfg)
+  expect_equal(unname(res$counts["X"]), 1)
 })
 
 test_that("empty document yields zeros", {

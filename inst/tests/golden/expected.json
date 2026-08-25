@@ -3,7 +3,7 @@
   "n_tokens": 8,
   "n_types": 6,
   "counts": {
-   "Intensifiers": 1,
+   "Intensifiers": 3,
    "Negations": 0,
    "Modal_Expressions": 0,
    "Social": 0
@@ -134,7 +134,7 @@
   "n_types": 10,
   "counts": {
    "Intensifiers": 1,
-   "Negations": 2,
+   "Negations": 3,
    "Modal_Expressions": 0,
    "Social": 1
   },

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Regenerate inst/tests/golden/expected.json from committed inputs.
 
-Standalone replication of app/text_analysis.py core logic from
-gdc0000/WordCount (MIT). Stdlib only: re, collections, json, pathlib.
+Standalone replica of the wowordcount R counter (base-R module logic).
+Stdlib only: re, collections, json, pathlib.
 
-Controller ruling R8 amendment (2026-08-24): counting follows upstream
-asymmetric semantics — EXACT term hits add +1 per distinct type present,
-WILDCARD prefix hits add the full document frequency (+f). The originally
-copied snippet added full frequency for exact hits too; exact vs wildcard
-counting is split accordingly (and detected lists de-duplicated) so the
-fixture mirrors app/text_analysis.py / R counter.R. Wildcard contributions
-accumulate once per MATCHING PREFIX (no dedup across overlapping prefixes
-of the same category), replicating upstream _match_prefix_categories().
+Counting follows CLASSIC LIWC frequency semantics (user ruling 2026-08-25,
+superseding the 2026-08-24 upstream-parity amendment): every token/n-gram
+occurrence counts with its full document frequency (+f) toward each
+category it matches, AT MOST ONCE per category per token — an exact term
+and a wildcard prefix (or several overlapping prefixes) hitting the same
+category count a single +f. This differs from the legacy Streamlit
+WordCount app, which added +1 per distinct type for exact hits and
+accumulated wildcard hits once per matching prefix.
 """
 import json
 import re
@@ -94,33 +94,25 @@ def main():
         detected = {c: [] for c in categories}
         freq = Counter(tokens)
         for tok, f in freq.items():
-            # R8: exact hits add +1 per distinct type present.
+            # Classic LIWC: one full-frequency count per matched category,
+            # regardless of how many rules (exact/wildcard/prefixes) hit it.
             for cat in categories:
-                if tok in exact_single[cat]:
-                    counts[cat] += 1
-                    detected[cat].append(tok)
-            # Upstream parity: wildcard hits add +f PER MATCHING PREFIX,
-            # so overlapping prefixes of one category each accumulate.
-            for cat in categories:
-                n_match = sum(1 for p in wildcard_single[cat]
-                              if p and tok.startswith(p))
-                counts[cat] += f * n_match
-                if n_match:
+                exact_hit = tok in exact_single[cat]
+                wild_hit = any(p and tok.startswith(p)
+                               for p in wildcard_single[cat])
+                if exact_hit or wild_hit:
+                    counts[cat] += f
                     detected[cat].append(tok)
         if required and len(tokens) >= 2:
             ng = Counter(ngrams_of(tokens, sorted(required)))
             for gram, f in ng.items():
-                # R8: exact multi-word hits add +1 per distinct type.
+                # Classic LIWC dedup per category, as for single tokens.
                 for cat in categories:
-                    if gram in exact_multi[cat]:
-                        counts[cat] += 1
-                        detected[cat].append(gram)
-                # Upstream parity: +f per matching multi-word prefix.
-                for cat in categories:
-                    n_match = sum(1 for p in wildcard_multi[cat]
-                                  if p and gram.startswith(p))
-                    counts[cat] += f * n_match
-                    if n_match:
+                    exact_hit = gram in exact_multi[cat]
+                    wild_hit = any(p and gram.startswith(p)
+                                   for p in wildcard_multi[cat])
+                    if exact_hit or wild_hit:
+                        counts[cat] += f
                         detected[cat].append(gram)
         rec["counts"] = counts
         # Dedup mirrors wc_count_document, which records each matched term

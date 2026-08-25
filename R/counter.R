@@ -1,18 +1,18 @@
-# Per-document counting engine: parity port of _prepare_analysis_config,
-# _build_prefix_trie, _match_prefix_categories, _analyze_document
-# from app/text_analysis.py (WordCount).
+# Per-document counting engine for wowordcount.
 #
-# Counting is asymmetric, mirroring app/text_analysis.py:
-# - EXACT dictionary terms add +1 per distinct token/n-gram TYPE present,
-#   regardless of how often the type occurs in the document.
-# - WILDCARD prefix terms add the full document FREQUENCY (+f) of each
-#   matching token/n-gram type.
-# Wildcard contributions accumulate PER MATCHING PREFIX (no dedup):
-# two prefixes of the same category matching one token each add the
-# full frequency twice, replicating upstream _match_prefix_categories()
-# iteration in app/text_analysis.py.
-# A term listed both exactly and reachable through a wildcard prefix
-# therefore contributes BOTH +1 (exact) and +f (wildcard).
+# Counting follows CLASSIC LIWC frequency semantics:
+# - Every token/n-gram OCCURRENCE counts with its full document frequency
+#   (+f) toward each category it matches.
+# - A token/n-gram matching a category through BOTH an exact dictionary
+#   term and one or more wildcard prefixes counts ONCE per category
+#   (per-category dedup); overlapping prefixes of the same category do
+#   not multiply the count either.
+# - Multi-word terms are matched against n-grams generated only for the
+#   lengths demanded by the dictionary (maximum 5).
+#
+# This differs from app/text_analysis.py of the legacy Streamlit WordCount
+# app, which added +1 per distinct type for exact hits and accumulated
+# wildcard hits once per matching prefix; results are NOT comparable.
 
 wc_trie_new <- function() new.env(parent = emptyenv())
 
@@ -109,17 +109,11 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
 
     for (token in names(freq)) {
       f <- as.integer(freq[[token]])
-      exact_hits <- cfg$exact_single_lookup[[token]]
-      if (!is.null(exact_hits)) {
-        for (cat in unique(exact_hits))
-          counts[cat] <- counts[cat] + 1L
-        if (collect_detected)
-          for (cat in unique(exact_hits))
-            detected[[cat]] <- c(detected[[cat]], token)
-      }
-      wild_hits <- wc_trie_match(cfg$single_trie, token)
-      # duplicates INTENTIONALLY preserved (upstream parity)
-      for (cat in wild_hits) {
+      # LIWC-classic: exact and wildcard matches dedup per category,
+      # then the token's full frequency counts once per matched category
+      cats_hit <- unique(c(cfg$exact_single_lookup[[token]],
+                           wc_trie_match(cfg$single_trie, token)))
+      for (cat in cats_hit) {
         counts[cat] <- counts[cat] + f
         if (collect_detected)
           detected[[cat]] <- c(detected[[cat]], token)
@@ -131,17 +125,10 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
       ng_freq <- table(ngrams)
       for (ng in names(ng_freq)) {
         f <- as.integer(ng_freq[[ng]])
-        exact_hits <- cfg$exact_multi_lookup[[ng]]
-        if (!is.null(exact_hits)) {
-          for (cat in unique(exact_hits))
-            counts[cat] <- counts[cat] + 1L
-          if (collect_detected)
-            for (cat in unique(exact_hits))
-              detected[[cat]] <- c(detected[[cat]], ng)
-        }
-        wild_hits <- wc_trie_match(cfg$multi_trie, ng)
-        # duplicates INTENTIONALLY preserved (upstream parity)
-        for (cat in wild_hits) {
+        # LIWC-classic dedup per category, as for single tokens
+        cats_hit <- unique(c(cfg$exact_multi_lookup[[ng]],
+                             wc_trie_match(cfg$multi_trie, ng)))
+        for (cat in cats_hit) {
           counts[cat] <- counts[cat] + f
           if (collect_detected)
             detected[[cat]] <- c(detected[[cat]], ng)

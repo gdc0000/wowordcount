@@ -58,18 +58,20 @@ Rules:
 
 ## Counting semantics
 
-Counting is intentionally asymmetric, mirroring the original WordCount:
+Counting follows **classic LIWC frequency semantics**:
 
-- **Exact** dictionary terms add +1 per **distinct word type present** in the
-  document, regardless of how often that type occurs.
-- **Wildcard prefix** terms add the **full frequency** of every matching
-  token.
+- Every token/n-gram **occurrence** counts with its full document frequency
+  toward each category it matches. Example: `"not not never"` adds **3** to
+  a negation category containing `not` and `never`.
+- **Wildcard prefix** terms (`can*`) match every token starting with the
+  prefix; each matching occurrence counts once per category.
+- A term that matches a category in several ways — listed exactly *and*
+  reachable through a wildcard, or through two overlapping prefixes —
+  counts **once per category** per occurrence (per-category dedup).
 
-Example: for the text `"not not never"` with the dictionary above,
-`Negations_word_count` = **2** (`not` and `never`: two distinct types), not 3.
-
-A term that is listed exactly *and* reachable through a wildcard contributes
-both ways (+1 as an exact match, plus its frequency via the wildcard).
+> This differs from the legacy Streamlit WordCount app, which counted exact
+> matches once per distinct word type; results are NOT comparable between
+> the two tools.
 
 ## Outputs
 
