@@ -7,6 +7,7 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             textVar = NULL,
+            lexicon = NULL,
             dictionary = "",
             detectedWords = FALSE, ...) {
 
@@ -22,6 +23,20 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 permitted=list(
                     "id",
                     "factor"))
+            private$..lexicon <- jmvcore::OptionArray$new(
+                "lexicon",
+                lexicon,
+                default=NULL,
+                template=jmvcore::OptionGroup$new(
+                    "lexicon",
+                    NULL,
+                    elements=list(
+                        jmvcore::OptionString$new(
+                            "category",
+                            NULL),
+                        jmvcore::OptionString$new(
+                            "terms",
+                            NULL))))
             private$..dictionary <- jmvcore::OptionString$new(
                 "dictionary",
                 dictionary,
@@ -34,17 +49,20 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "saveResults")
 
             self$.addOption(private$..textVar)
+            self$.addOption(private$..lexicon)
             self$.addOption(private$..dictionary)
             self$.addOption(private$..detectedWords)
             self$.addOption(private$..saveResults)
         }),
     active = list(
         textVar = function() private$..textVar$value,
+        lexicon = function() private$..lexicon$value,
         dictionary = function() private$..dictionary$value,
         detectedWords = function() private$..detectedWords$value,
         saveResults = function() private$..saveResults$value),
     private = list(
         ..textVar = NA,
+        ..lexicon = NA,
         ..dictionary = NA,
         ..detectedWords = NA,
         ..saveResults = NA)
@@ -125,7 +143,12 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' 
 #' @param data .
 #' @param textVar .
-#' @param dictionary .
+#' @param lexicon Lexicon rows built in the UI: one category per row with its
+#'   terms as a comma-separated list. A trailing * marks a prefix wildcard;
+#'   multi-word terms are allowed. Takes priority over the pasted dictionary.
+#' @param dictionary Paste your wordlist. Two formats are accepted: 1) TSV
+#'   with a DicTerm header (multi-line), or 2) single-line flat format:
+#'   very:Intensifiers; not:Negations; can*:Modal_Expressions
 #' @param detectedWords .
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -144,6 +167,7 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 wordcount <- function(
     data,
     textVar,
+    lexicon = NULL,
     dictionary = "",
     detectedWords = FALSE) {
 
@@ -159,6 +183,7 @@ wordcount <- function(
 
     options <- wordcountOptions$new(
         textVar = textVar,
+        lexicon = lexicon,
         dictionary = dictionary,
         detectedWords = detectedWords)
 

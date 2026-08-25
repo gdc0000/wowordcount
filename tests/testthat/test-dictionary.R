@@ -114,6 +114,39 @@ test_that("lexicon builder skips rows with empty terms", {
   expect_length(d$exact_single$A, 0)
 })
 
+test_that("lexicon row with category but empty terms alone yields no categories", {
+  d <- wc_parse_lexicon_rows(list(list(category = "A", terms = "")))
+  expect_length(d$categories, 0)
+  expect_length(d$terms$term, 0)
+})
+
+test_that("resolve: builder rows lacking terms fall back to paste box", {
+  d <- wc_resolve_dictionary(
+    list(list(category = "A", terms = "   ")),
+    "DicTerm\tCat\nword\tX"
+  )
+  expect_setequal(d$categories, "Cat")
+  expect_setequal(d$exact_single$Cat, "word")
+})
+
+test_that("resolve: builder with real terms wins over paste", {
+  d <- wc_resolve_dictionary(
+    list(list(category = "A", terms = "dog")),
+    "DicTerm\tCat\nword\tX"
+  )
+  expect_identical(d$categories, "A")
+  expect_setequal(d$exact_single$A, "dog")
+})
+
+test_that("resolve: builder and paste both yielding nothing error", {
+  expect_error(wc_resolve_dictionary(NULL, "  "),
+               regexp = "lexicon builder")
+  expect_error(
+    wc_resolve_dictionary(list(list(category = "A", terms = ",,")), NULL),
+    regexp = "lexicon builder"
+  )
+})
+
 test_that("lexicon builder trims terms and drops empties", {
   d <- wc_parse_lexicon_rows(list(
     list(category = " A ", terms = " dog , , cat ")

@@ -1,33 +1,47 @@
+wc_resolve_dictionary <- function(lexicon, dict_text) {
+    has_builder <- FALSE
+    if (!is.null(lexicon)) {
+        for (entry in lexicon) {
+            has_category <- !is.null(entry$category) &&
+                length(entry$category) > 0L &&
+                nzchar(trimws(as.character(entry$category)[1]))
+            has_terms <- !is.null(entry$terms) &&
+                length(entry$terms) > 0L &&
+                nzchar(trimws(as.character(entry$terms)[1]))
+            if (has_category && has_terms) {
+                has_builder <- TRUE
+                break
+            }
+        }
+    }
+
+    dict <- NULL
+    if (has_builder) {
+        dict <- wc_parse_lexicon_rows(lexicon)
+        if (length(dict$categories) == 0L)
+            dict <- NULL
+    }
+
+    if (is.null(dict) && !is.null(dict_text) &&
+        nchar(trimws(dict_text)) > 0L) {
+        dict <- wc_parse_dictionary(dict_text)
+    }
+
+    if (is.null(dict))
+        stop("Add categories and terms in the lexicon builder, ",
+             "or paste a dictionary.")
+
+    dict
+}
+
 #' @export
 wordcountClass <- R6::R6Class(
     "wordcountClass",
     inherit = wordcountBase,
     private = list(
         .run = function() {
-            dict_text <- self$options$dictionary
-            lexicon <- self$options$lexicon
-
-            has_builder <- FALSE
-            if (!is.null(lexicon)) {
-                for (entry in lexicon) {
-                    if (!is.null(entry$category) &&
-                        length(entry$category) > 0L &&
-                        nzchar(trimws(as.character(entry$category)[1]))) {
-                        has_builder <- TRUE
-                        break
-                    }
-                }
-            }
-
-            if (has_builder) {
-                dict <- wc_parse_lexicon_rows(lexicon)
-            } else if (!is.null(dict_text) &&
-                       nchar(trimws(dict_text)) > 0L) {
-                dict <- wc_parse_dictionary(dict_text)
-            } else {
-                stop("Add categories and terms in the lexicon builder, ",
-                     "or paste a dictionary.")
-            }
+            dict <- wc_resolve_dictionary(self$options$lexicon,
+                                          self$options$dictionary)
 
             # summary table
             tbl <- self$results$dictSummary
