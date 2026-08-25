@@ -61,3 +61,24 @@ test_that("summary table counts correctly", {
   expect_equal(modal$WildcardPrefixes, 2)
   expect_equal(modal$MultiWordTerms, 1)
 })
+
+test_that("flat single-line format parses", {
+  d <- wc_parse_dictionary("very:Int; not:Neg,Neg; can*:Modal; kind of:Int")
+  expect_setequal(d$categories, c("Int", "Neg", "Modal"))
+  expect_setequal(d$exact_single$Int, "very")
+  expect_setequal(d$exact_multi$Int, "kind of")
+  expect_setequal(d$wildcard_single$Modal, "can")
+  expect_length(d$exact_single$Neg, 1)
+  s <- wc_dictionary_summary(d)
+  expect_equal(s[s$Category == "Int", ]$ExactTerms, 1)
+})
+
+test_that("flat format errors on missing colon", {
+  expect_error(wc_parse_dictionary("very; not:Neg"), "term:Category")
+})
+
+test_that("tsv with empty category column keeps that category", {
+  d <- wc_parse_dictionary("DicTerm\tA\tB\nword\tX\t")
+  expect_setequal(d$categories, c("A", "B"))
+  expect_length(d$exact_single$B, 0)
+})

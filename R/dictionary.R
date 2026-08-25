@@ -2,11 +2,89 @@ wc_is_x_marker <- function(cell) {
   !is.na(cell) && nzchar(cell) && identical(toupper(trimws(cell)), "X")
 }
 
+wc_is_flat_dictionary <- function(text) {
+  !grepl("\n", text, fixed = TRUE) && grepl(";", text, fixed = TRUE)
+}
+
+wc_dict_skeleton <- function(categories) {
+  buckets <- stats::setNames(
+    vector("list", length(categories)), categories)
+  for (i in seq_along(buckets))
+    buckets[[i]] <- character(0)
+  buckets
+}
+
 wc_parse_dictionary <- function(text) {
   if (is.null(text) || nchar(trimws(text)) == 0L)
     stop("No dictionary provided. Paste your wordlist (TSV) ",
          "into the dictionary box.", call. = FALSE)
 
+  if (wc_is_flat_dictionary(text)) {
+    parsed <- wc_parse_flat_rows(text)
+  } else {
+    parsed <- wc_parse_tsv_rows(text)
+  }
+  rows <- parsed$rows
+  categories <- parsed$categories
+
+  exact_single <- wc_dict_skeleton(categories)
+  wildcard_single <- exact_single
+  exact_multi <- exact_single
+  wildcard_multi <- exact_single
+
+  terms_df <- data.frame(
+    term = character(0), is_wildcard = logical(0),
+    n_words = integer(0), categories = character(0),
+    stringsAsFactors = FALSE
+  )
+
+  for (row in rows) {
+    term <- row$term
+    hit_cats <- row$cats
+    is_wild <- endsWith(term, "*")
+    clean_term <- trimws(sub("\\*$", "", term))
+    n_words <- length(strsplit(clean_term, "[[:space:]]+", perl = TRUE)[[1]])
+
+    if (is_wild) {
+      for (cat in hit_cats) {
+        if (n_words > 1L) {
+          wildcard_multi[[cat]] <- union(wildcard_multi[[cat]], clean_term)
+        } else {
+          wildcard_single[[cat]] <-
+            union(wildcard_single[[cat]], clean_term)
+        }
+      }
+    } else {
+      for (cat in hit_cats) {
+        if (n_words > 1L) {
+          exact_multi[[cat]] <- union(exact_multi[[cat]], clean_term)
+        } else {
+          exact_single[[cat]] <- union(exact_single[[cat]], clean_term)
+        }
+      }
+    }
+
+    terms_df <- rbind(terms_df, data.frame(
+      term = clean_term, is_wildcard = is_wild,
+      n_words = n_words,
+      categories = paste(hit_cats, collapse = ", "),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  out <- list(
+    categories = categories,
+    exact_single = exact_single,
+    wildcard_single = wildcard_single,
+    exact_multi = exact_multi,
+    wildcard_multi = wildcard_multi,
+    terms = terms_df
+  )
+  class(out) <- "wcdict"
+  out
+}
+
+wc_parse_tsv_rows <- function(text) {
   con <- textConnection(text)
   on.exit(close(con))
   raw <- utils::read.delim(
@@ -23,24 +101,7 @@ wc_parse_dictionary <- function(text) {
   if (ncol(raw) > 1L)
     categories <- trimws(names(raw)[-1])
 
-  exact_single <- stats::setNames(
-    vector("list", length(categories)), categories)
-  wildcard_single <- exact_single
-  exact_multi <- exact_single
-  wildcard_multi <- exact_single
-  for (i in seq_along(exact_single)) {
-    exact_single[[i]] <- character(0)
-    wildcard_single[[i]] <- character(0)
-    exact_multi[[i]] <- character(0)
-    wildcard_multi[[i]] <- character(0)
-  }
-
-  terms_df <- data.frame(
-    term = character(0), is_wildcard = logical(0),
-    n_words = integer(0), categories = character(0),
-    stringsAsFactors = FALSE
-  )
-
+  rows <- list()
   if (nrow(raw) > 0L) {
     raw[] <- lapply(raw, function(col) ifelse(is.na(col), "", col))
     for (r in seq_len(nrow(raw))) {
@@ -52,50 +113,42 @@ wc_parse_dictionary <- function(text) {
         function(j) wc_is_x_marker(raw[r, 1 + j]),
         logical(1)
       )]
-      is_wild <- endsWith(term, "*")
-      clean_term <- trimws(sub("\\*$", "", term))
-      n_words <- length(strsplit(clean_term, "[[:space:]]+", perl = TRUE)[[1]])
-
-      if (is_wild) {
-        for (cat in hit_cats) {
-          if (n_words > 1L) {
-            wildcard_multi[[cat]] <- union(wildcard_multi[[cat]], clean_term)
-          } else {
-            wildcard_single[[cat]] <-
-              union(wildcard_single[[cat]], clean_term)
-          }
-        }
-      } else {
-        for (cat in hit_cats) {
-          if (n_words > 1L) {
-            exact_multi[[cat]] <- union(exact_multi[[cat]], clean_term)
-          } else {
-            exact_single[[cat]] <- union(exact_single[[cat]], clean_term)
-          }
-        }
-      }
-
-      if (length(hit_cats) > 0L) {
-        terms_df <- rbind(terms_df, data.frame(
-          term = clean_term, is_wildcard = is_wild,
-          n_words = n_words,
-          categories = paste(hit_cats, collapse = ", "),
-          stringsAsFactors = FALSE
-        ))
-      }
+      if (length(hit_cats) == 0L)
+        next
+      rows[[length(rows) + 1L]] <- list(term = term, cats = hit_cats)
     }
   }
+  list(rows = rows, categories = categories)
+}
 
-  out <- list(
-    categories = categories,
-    exact_single = exact_single,
-    wildcard_single = wildcard_single,
-    exact_multi = exact_multi,
-    wildcard_multi = wildcard_multi,
-    terms = terms_df
-  )
-  class(out) <- "wcdict"
-  out
+wc_parse_flat_rows <- function(text) {
+  segments <- trimws(strsplit(text, ";", fixed = TRUE)[[1]])
+  segments <- segments[nzchar(segments)]
+  if (length(segments) == 0L)
+    stop("Flat dictionary is empty. Expected format: ",
+         "term:Category1,Category2; another term:Category1",
+         call. = FALSE)
+
+  rows <- list()
+  for (seg in segments) {
+    pos <- regexpr(":", seg, fixed = TRUE)
+    if (pos == -1L)
+      stop("Segment '", seg, "' is missing ':'. Expected format: ",
+           "term:Category1,Category2; another term:Category1",
+           call. = FALSE)
+    term <- trimws(substr(seg, 1L, pos - 1L))
+    cat_part <- trimws(substr(seg, pos + 1L, nchar(seg)))
+    seg_cats <- trimws(strsplit(cat_part, ",", fixed = TRUE)[[1]])
+    seg_cats <- seg_cats[nzchar(seg_cats)]
+    if (!nzchar(term) || length(seg_cats) == 0L)
+      stop("Segment '", seg, "' needs a term and at least one ",
+           "category. Expected format: ",
+           "term:Category1,Category2; another term:Category1",
+           call. = FALSE)
+    rows[[length(rows) + 1L]] <- list(term = term, cats = seg_cats)
+  }
+  list(rows = rows, categories = unique(unlist(lapply(rows, `[[`, "cats"),
+                                             use.names = FALSE)))
 }
 
 wc_dictionary_summary <- function(dict) {
