@@ -15,9 +15,13 @@ options:
       permitted: [id, factor]
 
     - name: dictionary
-      title: Dictionary (paste TSV)
+      title: Dictionary
       type: String
       default: ''
+      description: |
+        Paste your wordlist. Two formats are accepted:
+        1) TSV with a DicTerm header (multi-line), or
+        2) single-line flat format: very:Intensifiers; not:Negations; can*:Modal_Expressions
 
     - name: detectedWords
       title: Include detected words columns
