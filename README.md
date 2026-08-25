@@ -56,6 +56,24 @@ Rules:
   `_` and every character outside `[A-Za-z0-9_]` is stripped (e.g.
   `Modal_Expressions` stays as-is).
 
+## Building a lexicon in the UI
+
+Instead of pasting TSV, you can build the dictionary directly in the
+**Lexicon builder** panel: add a row for each category and fill in its terms
+as a comma-separated list:
+
+| Category | Terms (comma-separated) |
+| --- | --- |
+| Intensifiers | very, extremely |
+| Negations | not, never |
+| Modal_Expressions | can*, might be |
+
+Rules mirror the pasted format: a trailing `*` marks a **prefix wildcard**,
+terms may contain internal spaces (**multi-word terms**), duplicate rows for
+the same category are merged, and rows without terms are ignored. When both
+the builder and the paste box are filled in, the **lexicon builder takes
+priority**.
+
 ## Counting semantics
 
 Counting follows **classic LIWC frequency semantics**:
@@ -98,9 +116,11 @@ report a summary line after completion.
 ## Parity
 
 Numeric results (tokenization, n-gram rule, counting semantics) were verified
-against a stdlib-only replica of the original counting logic
-(`tools/generate_golden.py`, itself a verbatim port kept in-tree); its outputs
-are bundled as golden fixtures with the module's test suite.
+against a stdlib-only replica of the module's counting logic
+(`tools/generate_golden.py`, kept in-tree); its outputs are bundled as golden
+fixtures with the module's test suite. The generator implements the
+classic-LIWC semantics adopted by this module, which intentionally diverge
+from the legacy Streamlit WordCount app (see Counting semantics above).
 
 ## Try it
 

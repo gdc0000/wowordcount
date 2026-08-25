@@ -82,3 +82,43 @@ test_that("tsv with empty category column keeps that category", {
   expect_setequal(d$categories, c("A", "B"))
   expect_length(d$exact_single$B, 0)
 })
+
+test_that("lexicon builder parses categories, wildcards and multi-word", {
+  d <- wc_parse_lexicon_rows(list(
+    list(category = "Intensifiers", terms = "very, extremely"),
+    list(category = "Modal_Expressions", terms = "can*, might be*")
+  ))
+  expect_setequal(d$categories,
+                  c("Intensifiers", "Modal_Expressions"))
+  expect_setequal(d$exact_single$Intensifiers, c("very", "extremely"))
+  expect_setequal(d$wildcard_single$Modal_Expressions, "can")
+  expect_setequal(d$wildcard_multi$Modal_Expressions, "might be")
+})
+
+test_that("lexicon builder merges duplicate category rows", {
+  d <- wc_parse_lexicon_rows(list(
+    list(category = "A", terms = "dog"),
+    list(category = "A", terms = "bird, dog")
+  ))
+  expect_identical(d$categories, "A")
+  expect_setequal(d$exact_single$A, c("dog", "bird"))
+  expect_length(d$exact_single$A, 2)
+})
+
+test_that("lexicon builder skips rows with empty terms", {
+  d <- wc_parse_lexicon_rows(list(
+    list(category = "A", terms = ""),
+    list(category = "B", terms = "word")
+  ))
+  expect_identical(d$categories, "B")
+  expect_length(d$exact_single$A, 0)
+})
+
+test_that("lexicon builder trims terms and drops empties", {
+  d <- wc_parse_lexicon_rows(list(
+    list(category = " A ", terms = " dog , , cat ")
+  ))
+  expect_identical(d$categories, "A")
+  expect_setequal(d$exact_single$A, c("dog", "cat"))
+  expect_length(d$terms$term, 2)
+})

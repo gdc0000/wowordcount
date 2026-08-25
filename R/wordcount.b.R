@@ -5,10 +5,29 @@ wordcountClass <- R6::R6Class(
     private = list(
         .run = function() {
             dict_text <- self$options$dictionary
-            if (is.null(dict_text) || nchar(trimws(dict_text)) == 0L)
-                stop("Paste a dictionary (TSV) into the dictionary box.")
+            lexicon <- self$options$lexicon
 
-            dict <- wc_parse_dictionary(dict_text)
+            has_builder <- FALSE
+            if (!is.null(lexicon)) {
+                for (entry in lexicon) {
+                    if (!is.null(entry$category) &&
+                        length(entry$category) > 0L &&
+                        nzchar(trimws(as.character(entry$category)[1]))) {
+                        has_builder <- TRUE
+                        break
+                    }
+                }
+            }
+
+            if (has_builder) {
+                dict <- wc_parse_lexicon_rows(lexicon)
+            } else if (!is.null(dict_text) &&
+                       nchar(trimws(dict_text)) > 0L) {
+                dict <- wc_parse_dictionary(dict_text)
+            } else {
+                stop("Add categories and terms in the lexicon builder, ",
+                     "or paste a dictionary.")
+            }
 
             # summary table
             tbl <- self$results$dictSummary

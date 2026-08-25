@@ -22,6 +22,23 @@ children:
   - type: LayoutBox
     margin: large
     children:
+      - type: ListBox
+        name: lexicon
+        height: large
+        showColumnHeaders: false
+        fullRowSelect: true
+        stretchFactor: 1
+        columns:
+          - name: category
+            stretchFactor: 1
+            template:
+              type: TextBox
+              format: string
+          - name: terms
+            stretchFactor: 2
+            template:
+              type: TextBox
+              format: string
       - type: TextBox
         name: dictionary
         format: string

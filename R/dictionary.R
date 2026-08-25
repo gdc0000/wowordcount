@@ -14,19 +14,7 @@ wc_dict_skeleton <- function(categories) {
   buckets
 }
 
-wc_parse_dictionary <- function(text) {
-  if (is.null(text) || nchar(trimws(text)) == 0L)
-    stop("No dictionary provided. Paste your wordlist (TSV) ",
-         "into the dictionary box.", call. = FALSE)
-
-  if (wc_is_flat_dictionary(text)) {
-    parsed <- wc_parse_flat_rows(text)
-  } else {
-    parsed <- wc_parse_tsv_rows(text)
-  }
-  rows <- parsed$rows
-  categories <- parsed$categories
-
+wc_route_term_rows <- function(rows, categories) {
   exact_single <- wc_dict_skeleton(categories)
   wildcard_single <- exact_single
   exact_multi <- exact_single
@@ -72,16 +60,63 @@ wc_parse_dictionary <- function(text) {
     ))
   }
 
-  out <- list(
-    categories = categories,
+  list(
     exact_single = exact_single,
     wildcard_single = wildcard_single,
     exact_multi = exact_multi,
     wildcard_multi = wildcard_multi,
     terms = terms_df
   )
+}
+
+wc_as_wcdict <- function(categories, routed) {
+  out <- c(list(categories = categories), routed)
   class(out) <- "wcdict"
   out
+}
+
+wc_parse_dictionary <- function(text) {
+  if (is.null(text) || nchar(trimws(text)) == 0L)
+    stop("No dictionary provided. Paste your wordlist (TSV) ",
+         "into the dictionary box.", call. = FALSE)
+
+  if (wc_is_flat_dictionary(text)) {
+    parsed <- wc_parse_flat_rows(text)
+  } else {
+    parsed <- wc_parse_tsv_rows(text)
+  }
+
+  wc_as_wcdict(parsed$categories,
+               wc_route_term_rows(parsed$rows, parsed$categories))
+}
+
+wc_parse_lexicon_rows <- function(entries) {
+  rows <- list()
+  categories <- character(0)
+
+  if (!is.null(entries)) {
+    for (entry in entries) {
+      category <- character(0)
+      if (!is.null(entry$category) && length(entry$category) > 0L)
+        category <- trimws(as.character(entry$category))
+      terms_raw <- ""
+      if (!is.null(entry$terms) && length(entry$terms) > 0L)
+        terms_raw <- as.character(entry$terms)[1]
+      terms <- trimws(strsplit(terms_raw, ",", fixed = TRUE)[[1]])
+      terms <- terms[nzchar(terms)]
+
+      if (length(category) == 0L || !nzchar(category) ||
+          length(terms) == 0L)
+        next
+
+      categories <- union(categories, category)
+      for (term in terms)
+        rows[[length(rows) + 1L]] <- list(term = term, cats = category)
+    }
+  }
+
+  wc_as_wcdict(categories,
+               wc_route_term_rows(rows, categories))
 }
 
 wc_parse_tsv_rows <- function(text) {

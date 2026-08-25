@@ -14,6 +14,24 @@ options:
       type: Variable
       permitted: [id, factor]
 
+    - name: lexicon
+      title: Lexicon builder
+      type: Array
+      default:
+      template:
+        type: Group
+        elements:
+          - name: category
+            type: String
+            title: Category
+          - name: terms
+            type: String
+            title: 'Terms (comma-separated)'
+      description: |
+        Lexicon rows built in the UI: one category per row with its terms as a
+        comma-separated list. A trailing * marks a prefix wildcard; multi-word
+        terms are allowed. Takes priority over the pasted dictionary.
+
     - name: dictionary
       title: Dictionary
       type: String
