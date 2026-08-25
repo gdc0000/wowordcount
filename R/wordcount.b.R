@@ -1,9 +1,9 @@
-#' @export
+﻿#' @export
 wordcountClass <- R6::R6Class(
     "wordcountClass",
     inherit = wordcountBase,
     private = list(
-        .runAnalysis = function() {
+        .run = function() {
             dict_text <- self$options$dictionary
             if (is.null(dict_text) || nchar(trimws(dict_text)) == 0L)
                 stop("Paste a dictionary (TSV) into the dictionary box.")

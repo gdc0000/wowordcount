@@ -1,4 +1,4 @@
----
+﻿---
 name: wordcount
 title: Word Count (LIWC-style)
 menuGroup: Text
@@ -12,7 +12,7 @@ options:
     - name: textVar
       title: Text Variable
       type: Variable
-      permitted: [id, nominal, nominaltext]
+      permitted: [id, factor]
 
     - name: dictionary
       title: Dictionary (paste TSV)

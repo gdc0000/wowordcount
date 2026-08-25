@@ -7,9 +7,22 @@ authors:
   - Gabriele Di Cicco
 maintainer: Gabriele Di Cicco
 description: LIWC-style word counting from user-supplied wordlists.
+analyses:
+  - title: Word Count (LIWC-style)
+    name: wordcount
+    ns: wowordcount
+    menuGroup: Text
+    menuTitle: Word Count (LIWC-style)
+    description: |
+      Count words and phrases per category from a pasted dictionary.
+    category: analyses
 datasets:
-    - name: demo_texts
-      path: demo_texts.csv
-      description: Fictional short texts for trying the Word Count analysis
-      tags:
-        - wordcount
+  - name: demo_texts
+    path: demo_texts.csv
+    description: Fictional short texts for trying the Word Count analysis
+    tags:
+      - wordcount
+usesNative: true
+minApp: 1.0.8
+
+...
