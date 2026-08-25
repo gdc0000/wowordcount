@@ -58,9 +58,12 @@ Rules:
 
 ## Building a lexicon in the UI
 
-Instead of pasting TSV, you can build the dictionary directly in the
-**Lexicon builder** panel: add a row for each category and fill in its terms
-as a comma-separated list:
+The analysis window has two ways to supply a dictionary.
+
+**Lexicon builder (recommended).** The *Lexicon builder* list sits right under
+the Text Variable box and opens with three example rows you can edit or
+delete. Click **Add category** for each category, then fill in its terms as a
+comma-separated list:
 
 | Category | Terms (comma-separated) |
 | --- | --- |
@@ -70,9 +73,16 @@ as a comma-separated list:
 
 Rules mirror the pasted format: a trailing `*` marks a **prefix wildcard**,
 terms may contain internal spaces (**multi-word terms**), duplicate rows for
-the same category are merged, and rows without terms are ignored. When both
-the builder and the paste box are filled in, the **lexicon builder takes
-priority**.
+the same category are merged, and rows without terms are ignored. The status
+note above the results always tells you which source was used
+(`source: lexicon builder` or `source: pasted dictionary`).
+
+**Paste box (bulk import).** Under *Or paste a whole dictionary*, collapsed by
+default, a single-line box accepts the TSV format described above or the flat
+one-line format (`very:Intensifiers; not:Negations; can*:Modal_Expressions`).
+jamovi only offers single-line text boxes, so very large dictionaries are
+easier to enter through the builder. When both inputs are filled in, the
+**lexicon builder takes priority**.
 
 ## Counting semantics
 
@@ -125,8 +135,9 @@ from the legacy Streamlit WordCount app (see Counting semantics above).
 ## Try it
 
 The module ships with `demo_texts`, a small set of fictional English/Italian
-social-media-style posts available in the Data Library — paste the example
-dictionary above, pick `text` as the Text Variable, and run.
+social-media-style posts available in the Data Library — pick `text` as the
+Text Variable (drag it into the box at the top) and run; the pre-filled
+example lexicon already matches several of its words.
 
 ## License
 

@@ -8,26 +8,30 @@ children:
     persistentItems: false
     stretchFactor: 1
     children:
-      - type: VariablesListBox
-        name: textVar
-        maxItemCount: 1
-        height: small
+      - type: TargetLayoutBox
+        label: Text variable
+        children:
+          - type: VariablesListBox
+            name: textVar
+            isTarget: true
+            maxItemCount: 1
+            height: small
+            ghostText: drag a text column here
   - type: LayoutBox
     margin: large
-    children:
-      - type: CheckBox
-        name: detectedWords
-      - type: Output
-        name: saveResults
-  - type: LayoutBox
-    margin: large
+    stretchFactor: 1
     children:
       - type: ListBox
         name: lexicon
         height: large
-        showColumnHeaders: false
+        showColumnHeaders: true
         fullRowSelect: true
         stretchFactor: 1
+        addButton: Add category
+        infoText: >-
+          One category per row; terms as a comma-separated list.
+          A trailing * marks a prefix wildcard; multi-word terms are allowed.
+          These rows take priority over the pasted dictionary below.
         columns:
           - name: category
             stretchFactor: 1
@@ -39,6 +43,20 @@ children:
             template:
               type: TextBox
               format: string
+      - type: CheckBox
+        name: detectedWords
+      - type: Output
+        name: saveResults
+  - type: CollapseBox
+    label: Or paste a whole dictionary (one-line format)
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: Label
+        label: >-
+          Single line, flat format —  term:Category1,Category2;
+          term2:Category3   (example below is pre-filled)
       - type: TextBox
         name: dictionary
         format: string
+        width: largest

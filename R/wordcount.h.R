@@ -7,8 +7,11 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             textVar = NULL,
-            lexicon = NULL,
-            dictionary = "",
+            lexicon = list(
+                list(category="Positivity", terms="very, good, happy, amazing"),
+                list(category="Negations", terms="not, non, never, no, niente"),
+                list(category="Modality", terms="can*, could*, might*, may*, should*")),
+            dictionary = "very:Intensifiers; not:Negations; can*:Modal_Expressions",
             detectedWords = FALSE, ...) {
 
             super$initialize(
@@ -26,7 +29,10 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..lexicon <- jmvcore::OptionArray$new(
                 "lexicon",
                 lexicon,
-                default=NULL,
+                default=list(
+                    list(category="Positivity", terms="very, good, happy, amazing"),
+                    list(category="Negations", terms="not, non, never, no, niente"),
+                    list(category="Modality", terms="can*, could*, might*, may*, should*")),
                 template=jmvcore::OptionGroup$new(
                     "lexicon",
                     NULL,
@@ -40,7 +46,7 @@ wordcountOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..dictionary <- jmvcore::OptionString$new(
                 "dictionary",
                 dictionary,
-                default="")
+                default="very:Intensifiers; not:Negations; can*:Modal_Expressions")
             private$..detectedWords <- jmvcore::OptionBool$new(
                 "detectedWords",
                 detectedWords,
@@ -146,9 +152,12 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param lexicon Lexicon rows built in the UI: one category per row with its
 #'   terms as a comma-separated list. A trailing * marks a prefix wildcard;
 #'   multi-word terms are allowed. Takes priority over the pasted dictionary.
+#'   The default rows are a working example: edit or remove them.
 #' @param dictionary Paste your wordlist. Two formats are accepted: 1) TSV
 #'   with a DicTerm header (multi-line), or 2) single-line flat format:
-#'   very:Intensifiers; not:Negations; can*:Modal_Expressions
+#'   very:Intensifiers; not:Negations; can*:Modal_Expressions Note: the lexicon
+#'   builder above takes priority when it has at least one complete row
+#'   (category plus terms).
 #' @param detectedWords .
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -167,8 +176,11 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 wordcount <- function(
     data,
     textVar,
-    lexicon = NULL,
-    dictionary = "",
+    lexicon = list(
+                list(category="Positivity", terms="very, good, happy, amazing"),
+                list(category="Negations", terms="not, non, never, no, niente"),
+                list(category="Modality", terms="can*, could*, might*, may*, should*")),
+    dictionary = "very:Intensifiers; not:Negations; can*:Modal_Expressions",
     detectedWords = FALSE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))

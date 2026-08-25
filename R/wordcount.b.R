@@ -1,28 +1,32 @@
+wc_has_builder_rows <- function(lexicon) {
+    if (is.null(lexicon))
+        return(FALSE)
+    for (entry in lexicon) {
+        has_category <- !is.null(entry$category) &&
+            length(entry$category) > 0L &&
+            nzchar(trimws(as.character(entry$category)[1]))
+        has_terms <- !is.null(entry$terms) &&
+            length(entry$terms) > 0L &&
+            nzchar(trimws(as.character(entry$terms)[1]))
+        if (has_category && has_terms)
+            return(TRUE)
+    }
+    FALSE
+}
+
 wc_resolve_dictionary <- function(lexicon, dict_text) {
-    has_builder <- FALSE
-    if (!is.null(lexicon)) {
-        for (entry in lexicon) {
-            has_category <- !is.null(entry$category) &&
-                length(entry$category) > 0L &&
-                nzchar(trimws(as.character(entry$category)[1]))
-            has_terms <- !is.null(entry$terms) &&
-                length(entry$terms) > 0L &&
-                nzchar(trimws(as.character(entry$terms)[1]))
-            if (has_category && has_terms) {
-                has_builder <- TRUE
-                break
-            }
+    dict <- NULL
+    used_builder <- FALSE
+
+    if (wc_has_builder_rows(lexicon)) {
+        candidate <- wc_parse_lexicon_rows(lexicon)
+        if (length(candidate$categories) > 0L) {
+            dict <- candidate
+            used_builder <- TRUE
         }
     }
 
-    dict <- NULL
-    if (has_builder) {
-        dict <- wc_parse_lexicon_rows(lexicon)
-        if (length(dict$categories) == 0L)
-            dict <- NULL
-    }
-
-    if (is.null(dict) && !is.null(dict_text) &&
+    if (!used_builder && !is.null(dict_text) &&
         nchar(trimws(dict_text)) > 0L) {
         dict <- wc_parse_dictionary(dict_text)
     }
@@ -31,6 +35,8 @@ wc_resolve_dictionary <- function(lexicon, dict_text) {
         stop("Add categories and terms in the lexicon builder, ",
              "or paste a dictionary.")
 
+    attr(dict, "source") <- if (used_builder) "lexicon builder"
+                            else "pasted dictionary"
     dict
 }
 
@@ -67,8 +73,9 @@ wordcountClass <- R6::R6Class(
                                          collect_detected = want_detected)
 
             note <- sprintf(
-                "%d documents analysed, %d categories.",
-                nrow(results), length(dict$categories)
+                "%d documents analysed, %d categories (source: %s).",
+                nrow(results), length(dict$categories),
+                attr(dict, "source")
             )
             self$results$statusNote$setVisible(TRUE)
             self$results$statusNote$setContent(note)

@@ -155,3 +155,17 @@ test_that("lexicon builder trims terms and drops empties", {
   expect_setequal(d$exact_single$A, c("dog", "cat"))
   expect_length(d$terms$term, 2)
 })
+
+test_that("resolve reports its source", {
+  d <- wc_resolve_dictionary(
+    list(list(category = "A", terms = "dog")),
+    "DicTerm\tCat\nword\tX"
+  )
+  expect_identical(attr(d, "source"), "lexicon builder")
+
+  d <- wc_resolve_dictionary(
+    list(list(category = "A", terms = "")),
+    "DicTerm\tCat\nword\tX"
+  )
+  expect_identical(attr(d, "source"), "pasted dictionary")
+})

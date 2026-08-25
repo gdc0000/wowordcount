@@ -15,9 +15,15 @@ options:
       permitted: [id, factor]
 
     - name: lexicon
-      title: Lexicon builder
+      title: 'Lexicon builder: category and its terms'
       type: Array
       default:
+        - category: Positivity
+          terms: very, good, happy, amazing
+        - category: Negations
+          terms: not, non, never, no, niente
+        - category: Modality
+          terms: can*, could*, might*, may*, should*
       template:
         type: Group
         elements:
@@ -31,15 +37,18 @@ options:
         Lexicon rows built in the UI: one category per row with its terms as a
         comma-separated list. A trailing * marks a prefix wildcard; multi-word
         terms are allowed. Takes priority over the pasted dictionary.
+        The default rows are a working example: edit or remove them.
 
     - name: dictionary
       title: Dictionary
       type: String
-      default: ''
+      default: 'very:Intensifiers; not:Negations; can*:Modal_Expressions'
       description: |
         Paste your wordlist. Two formats are accepted:
         1) TSV with a DicTerm header (multi-line), or
         2) single-line flat format: very:Intensifiers; not:Negations; can*:Modal_Expressions
+        Note: the lexicon builder above takes priority when it has at least one
+        complete row (category plus terms).
 
     - name: detectedWords
       title: Include detected words columns
