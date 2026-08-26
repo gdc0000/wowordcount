@@ -1,26 +1,10 @@
-wc_resolve_dictionary <- function(lexicon, dict_text, source = "builder") {
-    dict <- NULL
-
-    if (identical(source, "paste")) {
-        if (is.null(dict_text) || nchar(trimws(dict_text)) == 0L)
-            stop("Lexicon source is 'Paste a dictionary' but the ",
-                 "dictionary box is empty. Paste your wordlist, or switch ",
-                 "the lexicon source back to 'Build in the app'.",
-                 call. = FALSE)
-        dict <- wc_parse_dictionary(dict_text)
-        src <- "pasted dictionary"
-    } else {
-        dict <- wc_parse_lexicon_rows(lexicon)
-        if (length(dict$categories) == 0L)
-            stop("Lexicon source is 'Build in the app' but the lexicon ",
-                 "builder has no complete rows (a category with at least ",
-                 "one term). Add one, or switch the lexicon source to ",
-                 "'Paste a dictionary'.",
-                 call. = FALSE)
-        src <- "lexicon builder"
-    }
-
-    attr(dict, "source") <- src
+wc_resolve_dictionary <- function(lexicon) {
+    dict <- wc_parse_lexicon_rows(lexicon)
+    if (length(dict$categories) == 0L)
+        stop("The lexicon builder has no complete rows ",
+             "(a category with at least one term). Add one.",
+             call. = FALSE)
+    attr(dict, "source") <- "lexicon builder"
     dict
 }
 
@@ -30,9 +14,7 @@ wordcountClass <- R6::R6Class(
     inherit = wordcountBase,
     private = list(
         .run = function() {
-            dict <- wc_resolve_dictionary(self$options$lexicon,
-                                          self$options$dictionary,
-                                          self$options$lexiconSource)
+            dict <- wc_resolve_dictionary(self$options$lexicon)
 
             # summary table
             tbl <- self$results$dictSummary

@@ -8,3 +8,6 @@
 *.tar.gz
 # python
 __pycache__/
+# opencode
+.superpowers/
+prompt.txt

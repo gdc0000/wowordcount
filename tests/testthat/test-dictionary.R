@@ -122,48 +122,21 @@ test_that("lexicon row with category but empty terms alone yields no categories"
 
 test_that("resolve: builder mode uses builder rows only", {
   d <- wc_resolve_dictionary(
-    list(list(category = "A", terms = "dog")),
-    "DicTerm\tCat\nword\tX",
-    source = "builder"
+    list(list(category = "A", terms = "dog"))
   )
   expect_identical(d$categories, "A")
   expect_setequal(d$exact_single$A, "dog")
   expect_identical(attr(d, "source"), "lexicon builder")
 })
 
-test_that("resolve: paste mode uses pasted text only", {
-  d <- wc_resolve_dictionary(
-    list(list(category = "A", terms = "dog")),
-    "DicTerm\tCat\nword\tX",
-    source = "paste"
-  )
-  expect_identical(d$categories, "Cat")
-  expect_setequal(d$exact_single$Cat, "word")
-  expect_identical(attr(d, "source"), "pasted dictionary")
-})
-
 test_that("resolve: builder mode with no complete rows errors", {
   expect_error(
-    wc_resolve_dictionary(list(list(category = "A", terms = "   ")),
-                          "DicTerm\tCat\nword\tX",
-                          source = "builder"),
-    regexp = "Build in the app"
+    wc_resolve_dictionary(list(list(category = "A", terms = "   "))),
+    regexp = "no complete rows"
   )
   expect_error(
-    wc_resolve_dictionary(NULL, NULL, source = "builder"),
-    regexp = "Build in the app"
-  )
-})
-
-test_that("resolve: paste mode with empty box errors", {
-  expect_error(
-    wc_resolve_dictionary(list(list(category = "A", terms = "dog")), "  ",
-                          source = "paste"),
-    regexp = "dictionary box is empty"
-  )
-  expect_error(
-    wc_resolve_dictionary(NULL, NULL, source = "paste"),
-    regexp = "dictionary box is empty"
+    wc_resolve_dictionary(NULL),
+    regexp = "no complete rows"
   )
 })
 
@@ -174,19 +147,4 @@ test_that("lexicon builder trims terms and drops empties", {
   expect_identical(d$categories, "A")
   expect_setequal(d$exact_single$A, c("dog", "cat"))
   expect_length(d$terms$term, 2)
-})
-
-test_that("resolve reports its source", {
-  d <- wc_resolve_dictionary(
-    list(list(category = "A", terms = "dog")),
-    "DicTerm\tCat\nword\tX"
-  )
-  expect_identical(attr(d, "source"), "lexicon builder")
-
-  d <- wc_resolve_dictionary(
-    list(list(category = "A", terms = "")),
-    "DicTerm\tCat\nword\tX",
-    source = "paste"
-  )
-  expect_identical(attr(d, "source"), "pasted dictionary")
 })

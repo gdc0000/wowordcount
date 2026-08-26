@@ -18,15 +18,7 @@ children:
             height: small
             ghostText: drag a text column here
   - type: Label
-    label: Lexicon source
-  - type: RadioButton
-    name: lexiconSource_builder
-    optionName: lexiconSource
-    optionPart: builder
-  - type: RadioButton
-    name: lexiconSource_paste
-    optionName: lexiconSource
-    optionPart: paste
+    label: Lexicon
   - type: LayoutBox
     margin: large
     stretchFactor: 1
@@ -38,12 +30,9 @@ children:
         fullRowSelect: true
         stretchFactor: 1
         addButton: Add category
-        enable: (lexiconSource:builder)
         infoText: >-
           One category per row; terms as a comma-separated list.
           A trailing * marks a prefix wildcard; multi-word terms are allowed.
-          These rows are the dictionary while the source above is
-          Build in the app.
         columns:
           - name: category
             stretchFactor: 1
@@ -55,20 +44,6 @@ children:
             template:
               type: TextBox
               format: string
-  - type: LayoutBox
-    margin: large
-    stretchFactor: 1
-    children:
-      - type: Label
-        label: >-
-          Paste your wordlist below. Accepted: TSV with a DicTerm header
-          (multi-line), or one line in flat format -
-          term:Category1,Category2; term2:Category3
-      - type: TextBox
-        name: dictionary
-        format: string
-        width: largest
-        enable: (lexiconSource:paste)
   - type: LayoutBox
     margin: large
     children:
