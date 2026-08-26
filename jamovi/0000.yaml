@@ -14,14 +14,8 @@ analyses:
     menuGroup: Text
     menuTitle: Word Count (LIWC-style)
     description: |
-      Count words and phrases per category from a pasted dictionary.
+      Count words and phrases per category from user-supplied lexicon.
     category: analyses
-datasets:
-  - name: demo_texts
-    path: demo_texts.csv
-    description: Fictional short texts for trying the Word Count analysis
-    tags:
-      - wordcount
 usesNative: true
 minApp: 1.0.8
 

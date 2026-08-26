@@ -122,13 +122,6 @@ fixtures with the module's test suite. The generator implements the
 classic-LIWC semantics adopted by this module, which intentionally diverge
 from the legacy Streamlit WordCount app (see Counting semantics above).
 
-## Try it
-
-The module ships with `demo_texts`, a small set of fictional English/Italian
-social-media-style posts available in the Data Library — pick `text` as the
-Text Variable (drag it into the box at the top) and run; the pre-filled
-example lexicon already matches several of its words.
-
 ## License
 
 MIT — see the package `DESCRIPTION`.
