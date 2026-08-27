@@ -1,1 +1,5 @@
-exportPattern("^[[:alpha:]]+")
+export(wordcount)
+export(wordcountClass)
+export(wordcountOptions)
+export(wordcountResults)
+export(wordcountBase)
