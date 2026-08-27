@@ -20,11 +20,7 @@ wc_route_term_rows <- function(rows, categories) {
   exact_multi <- exact_single
   wildcard_multi <- exact_single
 
-  terms_df <- data.frame(
-    term = character(0), is_wildcard = logical(0),
-    n_words = integer(0), categories = character(0),
-    stringsAsFactors = FALSE
-  )
+  rows_list <- list()
 
   for (row in rows) {
     term <- row$term
@@ -52,13 +48,21 @@ wc_route_term_rows <- function(rows, categories) {
       }
     }
 
-    terms_df <- rbind(terms_df, data.frame(
+    rows_list[[length(rows_list) + 1L]] <- data.frame(
       term = clean_term, is_wildcard = is_wild,
       n_words = n_words,
       categories = paste(hit_cats, collapse = ", "),
       stringsAsFactors = FALSE
-    ))
+    )
   }
+
+  terms_df <- data.frame(
+    term = character(0), is_wildcard = logical(0),
+    n_words = integer(0), categories = character(0),
+    stringsAsFactors = FALSE
+  )
+  if (length(rows_list) > 0L)
+    terms_df <- do.call(rbind, rows_list)
 
   list(
     exact_single = exact_single,
