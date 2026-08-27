@@ -2,7 +2,7 @@
 name: wordcount
 title: Word Count (LIWC-style)
 menuGroup: Text
-version: '0.1.0'
+version: '1.0.0'
 jas: '1.2'
 
 options:

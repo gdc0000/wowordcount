@@ -1,13 +1,13 @@
 Package: wowordcount
 Type: Package
 Title: LIWC-style Word Count Analyses
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: person("Gabriele", "Di Cicco", role = c("aut", "cre"),
     email = "gabriele.dicicco@gmail.com")
 Description: Counts words and word patterns in text documents using
     user-supplied dictionaries, in the style of LIWC. Native jamovi port of
     the WordCount application.
-License: MIT
+License: GPL (>= 2)
 Encoding: UTF-8
 Depends: R (>= 4.2)
 Imports: jmvcore (>= 2.4), methods, R6

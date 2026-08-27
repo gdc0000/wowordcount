@@ -88,7 +88,9 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=0,
                 clearWith=list(
                     "textVar",
-                    "lexicon"),
+                    "lexiconSource",
+                    "lexicon",
+                    "dictionary"),
                 columns=list(
                     list(
                         `name`="category", 
@@ -113,7 +115,9 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=0,
                 clearWith=list(
                     "textVar",
-                    "lexicon"),
+                    "lexiconSource",
+                    "lexicon",
+                    "dictionary"),
                 columns=list(
                     list(
                         `name`="category", 
@@ -153,7 +157,9 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 initInRun=TRUE,
                 clearWith=list(
                     "textVar",
+                    "lexiconSource",
                     "lexicon",
+                    "dictionary",
                     "detectedWords")))}))
 
 wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -164,7 +170,7 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "wowordcount",
                 name = "wordcount",
-                version = c(0,1,0),
+                version = c(1,0,0),
                 options = options,
                 results = wordcountResults$new(options=options),
                 data = data,

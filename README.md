@@ -26,6 +26,13 @@ the `jmvtools` R package installed, run from the module root:
 jmvtools::install()
 ```
 
+## Example data
+
+The module bundles `sentences.csv`, a small set of eight fictional documents.
+After installing the module, open jamovi's **Open > Data Library** and select
+**wowordcount > sentences**: the `text` variable is pre-loaded, so you can run
+the analysis with the default lexicon right away.
+
 ## Dictionary format
 
 Dictionaries are entered directly in the UI using the **lexicon builder**:
@@ -109,9 +116,9 @@ from the legacy Streamlit WordCount app (see Counting semantics above).
 
 ## License
 
-MIT — see the package `DESCRIPTION`.
+GPL (>= 2) — see the package `DESCRIPTION` and the `LICENSE` file.
 
 ## Citation
 
 Di Cicco, G. (2026). *wowordcount: LIWC-style Word Count Analyses* (Version
-0.1.0) [jamovi module].
+1.0.0) [jamovi module].

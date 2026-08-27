@@ -1,7 +1,7 @@
 ---
 title: wowordcount
 name: wowordcount
-version: 0.1.0
+version: 1.0.0
 jms: '1.0'
 authors:
   - Gabriele Di Cicco
@@ -18,5 +18,15 @@ analyses:
     category: analyses
 usesNative: true
 minApp: 1.0.8
+datasets:
+  - name: sentences
+    path: sentences.csv
+    description: >-
+      Eight short fictional documents for trying out the Word Count (LIWC-style)
+      analysis with the default lexicon.
+    tags:
+      - Word Count
+      - Text
+      - Example
 
 ...
