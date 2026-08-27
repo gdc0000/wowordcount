@@ -4,15 +4,12 @@
 
 wc_max_ngram_size <- 5L
 
-wc_clean_document <- function(doc) {
-  if (is.na(doc))
-    return("")
-  doc <- tolower(as.character(doc))
-  gsub("(*UCP)[^\\w\\s']", " ", doc, perl = TRUE)
-}
-
 wc_tokenize <- function(doc) {
-  parts <- strsplit(wc_clean_document(doc), "(*UCP)\\s+", perl = TRUE)[[1]]
+  if (is.na(doc))
+    return(character(0))
+  doc <- tolower(as.character(doc))
+  cleaned <- gsub("(*UCP)[^\\w\\s']", " ", doc, perl = TRUE)
+  parts <- strsplit(cleaned, "(*UCP)\\s+", perl = TRUE)[[1]]
   parts[nzchar(parts)]
 }
 

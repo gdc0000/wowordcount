@@ -1,10 +1,10 @@
-test_that("cleaning handles NA, case, punctuation", {
-  expect_equal(wc_clean_document(NA_character_), "")
-  expect_equal(wc_clean_document("Hello, World!"), "hello  world ")
+test_that("tokenizing handles NA, case, punctuation", {
+  expect_equal(wc_tokenize(NA_character_), character(0))
+  expect_equal(wc_tokenize("Hello, World!"), c("hello", "world"))
 })
 
 test_that("apostrophes and underscores survive", {
-  expect_equal(wc_clean_document("L'amico_non_è"), "l'amico_non_è")
+  expect_equal(wc_tokenize("L'amico_non_è"), "l'amico_non_è")
 })
 
 test_that("accented characters survive cleaning (Italian corpus)", {
