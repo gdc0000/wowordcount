@@ -3,7 +3,7 @@
 LIWC-style word counting for [jamovi](https://www.jamovi.org). Load a text
 variable, build your own dictionary in the app, and get per-document word
 counts and percentages for each dictionary category — the classic Linguistic
-Inquiry and Word Count workflow, without sending your data anywhere.
+Inquiry and Word Count workflow.
 
 Everything runs locally in jamovi: base R only, no external services, no
 Python runtime.
