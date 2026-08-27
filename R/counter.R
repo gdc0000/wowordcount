@@ -14,49 +14,22 @@
 # app, which added +1 per distinct type for exact hits and accumulated
 # wildcard hits once per matching prefix; results are NOT comparable.
 
-wc_trie_new <- function() new.env(parent = emptyenv())
-
-wc_trie_add <- function(trie, prefix, cats) {
-  node <- trie
-  chars <- strsplit(prefix, "", fixed = TRUE)[[1]]
-  for (ch in chars) {
-    nxt <- node[[ch]]
-    if (is.null(nxt)) {
-      nxt <- wc_trie_new()
-      assign(ch, nxt, envir = node)
-    }
-    node <- nxt
+wc_wildcard_match <- function(prefixes_by_cat, term) {
+  hit <- character(0)
+  for (cat in names(prefixes_by_cat)) {
+    pre <- prefixes_by_cat[[cat]]
+    if (length(pre) > 0L && any(startsWith(rep(term, length(pre)), pre)))
+      hit <- c(hit, cat)
   }
-  existing <- node$.terminal_
-  node$.terminal_ <- if (is.null(existing)) cats else c(existing, cats)
-  invisible(NULL)
+  hit
 }
-
-wc_trie_match <- function(trie, term) {
-  if (isEmptyTrie(trie))
-    return(character(0))
-  node <- trie
-  matched <- character(0)
-  chars <- strsplit(term, "", fixed = TRUE)[[1]]
-  for (ch in chars) {
-    nxt <- node[[ch]]
-    if (is.null(nxt))
-      break
-    node <- nxt
-    if (!is.null(node$.terminal_))
-      matched <- c(matched, node$.terminal_)
-  }
-  matched
-}
-
-isEmptyTrie <- function(trie) length(ls(trie)) == 0L
 
 wc_prepare_config <- function(dict) {
   categories <- dict$categories
   es_lookup <- list()
   em_lookup <- list()
-  s_trie <- wc_trie_new()
-  m_trie <- wc_trie_new()
+  wildcard_single <- list()
+  wildcard_multi <- list()
   req_len <- integer(0)
 
   add_to_named_list <- function(lst, key, val) {
@@ -69,7 +42,7 @@ wc_prepare_config <- function(dict) {
       es_lookup <- add_to_named_list(es_lookup, term, cat)
     for (prefix in dict$wildcard_single[[cat]])
       if (nzchar(prefix))
-        wc_trie_add(s_trie, prefix, cat)
+        wildcard_single[[cat]] <- c(wildcard_single[[cat]], prefix)
     for (term in dict$exact_multi[[cat]]) {
       em_lookup <- add_to_named_list(em_lookup, term, cat)
       k <- length(strsplit(term, " ", fixed = TRUE)[[1]])
@@ -78,7 +51,7 @@ wc_prepare_config <- function(dict) {
     }
     for (prefix in dict$wildcard_multi[[cat]]) {
       if (nzchar(prefix))
-        wc_trie_add(m_trie, prefix, cat)
+        wildcard_multi[[cat]] <- c(wildcard_multi[[cat]], prefix)
       k <- length(strsplit(prefix, " ", fixed = TRUE)[[1]])
       if (k <= wc_max_ngram_size)
         req_len <- c(req_len, seq(max(k, 2L), wc_max_ngram_size))
@@ -89,8 +62,8 @@ wc_prepare_config <- function(dict) {
     categories = categories,
     exact_single_lookup = es_lookup,
     exact_multi_lookup = em_lookup,
-    single_trie = s_trie,
-    multi_trie = m_trie,
+    wildcard_single = wildcard_single,
+    wildcard_multi = wildcard_multi,
     required_lengths = sort(unique(as.integer(req_len)))
   )
 }
@@ -112,7 +85,7 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
       # LIWC-classic: exact and wildcard matches dedup per category,
       # then the token's full frequency counts once per matched category
       cats_hit <- unique(c(cfg$exact_single_lookup[[token]],
-                           wc_trie_match(cfg$single_trie, token)))
+                           wc_wildcard_match(cfg$wildcard_single, token)))
       for (cat in cats_hit) {
         counts[cat] <- counts[cat] + f
         if (collect_detected)
@@ -127,7 +100,7 @@ wc_count_document <- function(tokens, cfg, collect_detected = FALSE) {
         f <- as.integer(ng_freq[[ng]])
         # LIWC-classic dedup per category, as for single tokens
         cats_hit <- unique(c(cfg$exact_multi_lookup[[ng]],
-                             wc_trie_match(cfg$multi_trie, ng)))
+                             wc_wildcard_match(cfg$wildcard_multi, ng)))
         for (cat in cats_hit) {
           counts[cat] <- counts[cat] + f
           if (collect_detected)
