@@ -29,14 +29,14 @@ jmvtools::install()
 ## Dictionary format
 
 Dictionaries are entered directly in the UI using the **lexicon builder**:
-one category per row with its terms as a comma-separated list. The bundled
-example uses three categories:
+one category per row with its terms as a comma-separated list. The default
+lexicon provides a working example:
 
 | Category | Terms (comma-separated) |
 | --- | --- |
-| Intensifiers | very, extremely |
-| Negations | not, never |
-| Modal_Expressions | can*, might be |
+| Positivity | very, good, happy, amazing |
+| Negations | not, non, never, no, niente |
+| Modality | can*, could*, might*, may*, should* |
 
 Rules:
 
@@ -44,27 +44,12 @@ Rules:
   `candle`, and so on.
 - Terms may contain internal spaces (multi-word terms, matched against
   n-grams up to length 5).
-- Category names become output column names after sanitization: spaces become
-  `_` and every character outside `[A-Za-z0-9_]` is stripped (e.g.
-  `Modal_Expressions` stays as-is).
-
-## Building a lexicon in the UI
-
-The analysis window offers a **lexicon builder** where you define categories
-and terms:
-
-| Category | Terms (comma-separated) |
-| --- | --- |
-| Intensifiers | very, extremely |
-| Negations | not, never |
-| Modal_Expressions | can*, might be |
+- Category names become output column names after sanitization: spaces
+  become `_` and every character outside `[A-Za-z0-9_]` is stripped (e.g.
+  `Social Words!` becomes `Social_Words`).
 
 Click **Add category** for each category, then fill in its terms as a
-comma-separated list. The default rows are a working example: edit or remove
-them.
-
-Rules: a trailing `*` marks a **prefix wildcard**, terms may contain internal
-spaces (**multi-word terms**), duplicate rows for the same category are merged,
+comma-separated list. Duplicate rows for the same category are merged,
 and rows without terms are ignored.
 
 ## Saving results to the data set

@@ -11,3 +11,5 @@ __pycache__/
 # opencode
 .superpowers/
 prompt.txt
+# docs
+/docs/
