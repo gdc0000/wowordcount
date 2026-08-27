@@ -57,8 +57,10 @@ and rows without terms are ignored.
 ## Outputs
 
 For each document the analysis reports the token and type totals, plus one
-word count and one percentage per dictionary category. Optionally, a column
-lists exactly which words and multi-word expressions were detected.
+word count and one percentage per dictionary category. Unlike the original
+LIWC, which does not report which words matched, `wowordcount` can also list
+exactly which words and multi-word expressions were detected in each
+document — useful for auditing how the dictionary behaves on your data.
 
 Tick **Append results to the data set** under the collapsed **Save** section
 (like EFA/PCA factor scores) and run: the per-document columns are appended
