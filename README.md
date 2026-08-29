@@ -99,3 +99,7 @@ GPL (>= 2) — see the package `DESCRIPTION` and the `LICENSE` file.
 
 Di Cicco, G. (2026). *wowordcount: LIWC-style Word Count Analyses* (Version
 1.0.0) [jamovi module].
+
+## AI full disclosure
+
+- This software is developed with **strong assistance from GLM-5.3-Flash** and with human leading on ideas, testing, and debugging.
