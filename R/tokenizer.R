@@ -21,11 +21,13 @@ wc_generate_ngrams <- function(tokens, lengths) {
   for (n in lengths) {
     if (n > n_tokens || n < 2L)
       next
-    starts <- 1L:(n_tokens - n + 1L)
-    windows <- vapply(
-      starts,
-      function(s) paste(tokens[s:(s + n - 1L)], collapse = " "),
-      character(1)
+    starts <- seq_len(n_tokens - n + 1L)
+    # one paste() call per length: paste column-wise across n shifted
+    # token vectors; output identical to per-window collapse = " "
+    windows <- do.call(
+      paste,
+      c(lapply(seq_len(n) - 1L, function(o) tokens[o + starts]),
+        list(sep = " "))
     )
     out <- c(out, windows)
   }
