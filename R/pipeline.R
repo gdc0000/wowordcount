@@ -25,9 +25,11 @@ wc_analyze_corpus <- function(texts, dict, collect_detected = FALSE) {
     n_tokens[[i]] <- res$n_tokens
     n_types[[i]] <- res$n_types
     counts_mat[i, ] <- res$counts[categories]
-    for (cat in categories) {
-      detected[[cat]][[i]] <-
-        paste(sort(unique(res$detected[[cat]])), collapse = ", ")
+    if (collect_detected) {
+      for (cat in categories) {
+        detected[[cat]][[i]] <-
+          paste(sort(unique(res$detected[[cat]])), collapse = ", ")
+      }
     }
   }
 

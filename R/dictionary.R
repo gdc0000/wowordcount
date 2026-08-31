@@ -21,7 +21,10 @@ wc_route_term_rows <- function(rows, categories) {
   wildcard_multi <- exact_single
 
   rows_list <- list()
+  n_rows <- length(rows_list)
 
+  # accumulate raw terms per bucket, unique once at the end: avoids the
+  # O(n^2) cost of union() per term x category on large lexicons
   for (row in rows) {
     term <- row$term
     hit_cats <- row$cats
@@ -30,31 +33,39 @@ wc_route_term_rows <- function(rows, categories) {
     n_words <- length(strsplit(clean_term, "[[:space:]]+", perl = TRUE)[[1]])
 
     if (is_wild) {
-      for (cat in hit_cats) {
-        if (n_words > 1L) {
-          wildcard_multi[[cat]] <- union(wildcard_multi[[cat]], clean_term)
-        } else {
-          wildcard_single[[cat]] <-
-            union(wildcard_single[[cat]], clean_term)
-        }
+      if (n_words > 1L) {
+        for (cat in hit_cats)
+          wildcard_multi[[cat]] <- c(wildcard_multi[[cat]], clean_term)
+      } else {
+        for (cat in hit_cats)
+          wildcard_single[[cat]] <- c(wildcard_single[[cat]], clean_term)
       }
     } else {
-      for (cat in hit_cats) {
-        if (n_words > 1L) {
-          exact_multi[[cat]] <- union(exact_multi[[cat]], clean_term)
-        } else {
-          exact_single[[cat]] <- union(exact_single[[cat]], clean_term)
-        }
+      if (n_words > 1L) {
+        for (cat in hit_cats)
+          exact_multi[[cat]] <- c(exact_multi[[cat]], clean_term)
+      } else {
+        for (cat in hit_cats)
+          exact_single[[cat]] <- c(exact_single[[cat]], clean_term)
       }
     }
 
-    rows_list[[length(rows_list) + 1L]] <- data.frame(
+    n_rows <- n_rows + 1L
+    rows_list[[n_rows]] <- data.frame(
       term = clean_term, is_wildcard = is_wild,
       n_words = n_words,
       categories = paste(hit_cats, collapse = ", "),
       stringsAsFactors = FALSE
     )
   }
+
+  buckets <- list(exact_single, wildcard_single, exact_multi, wildcard_multi)
+  buckets <- lapply(buckets, function(bucket)
+    lapply(bucket, function(v) if (is.null(v)) character(0) else unique(v)))
+  exact_single <- buckets[[1]]
+  wildcard_single <- buckets[[2]]
+  exact_multi <- buckets[[3]]
+  wildcard_multi <- buckets[[4]]
 
   terms_df <- data.frame(
     term = character(0), is_wildcard = logical(0),
@@ -128,7 +139,10 @@ wc_parse_tsv_rows <- function(text) {
   on.exit(close(con))
   raw <- utils::read.delim(
     con, sep = "\t", header = TRUE, colClasses = "character",
-    check.names = FALSE, na.strings = NULL, stringsAsFactors = FALSE
+    check.names = FALSE, na.strings = NULL, stringsAsFactors = FALSE,
+    # terms may legitimately contain quotes; never let read.delim
+    # interpret them as quoting or the term gets mangled silently
+    quote = ""
   )
 
   header_first <- tolower(trimws(names(raw)[1]))
@@ -139,6 +153,13 @@ wc_parse_tsv_rows <- function(text) {
   categories <- character(0)
   if (ncol(raw) > 1L)
     categories <- trimws(names(raw)[-1])
+
+  # duplicate category columns would collide in the counts matrix
+  if (anyDuplicated(categories))
+    stop("Duplicate category names in the dictionary header: ",
+         paste(unique(categories[duplicated(categories)]),
+               collapse = ", "),
+         call. = FALSE)
 
   rows <- list()
   if (nrow(raw) > 0L) {
