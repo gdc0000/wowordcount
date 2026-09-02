@@ -10,9 +10,6 @@
 # - Multi-word terms are matched against n-grams generated only for the
 #   lengths demanded by the dictionary (maximum 5).
 #
-# This differs from app/text_analysis.py of the legacy Streamlit WordCount
-# app, which added +1 per distinct type for exact hits and accumulated
-# wildcard hits once per matching prefix; results are NOT comparable.
 
 # Vectorized type-key matching for one category: TRUE where the key is an
 # exact term of the category or starts with one of its wildcard prefixes.

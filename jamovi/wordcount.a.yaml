@@ -8,9 +8,7 @@ jas: '1.2'
 description: |
     Counts words and phrases per category from a user-defined lexicon,
     LIWC-style: every matched term contributes its full document
-    frequency to the categories it matches. Counts follow classic LIWC
-    frequency semantics; results are not directly comparable to the
-    original WordCount application.
+    frequency to the categories it matches.
 
 refs: [tausczik2010, boyd2022]
 
