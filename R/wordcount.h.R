@@ -182,12 +182,20 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
 #' Word Count (LIWC-style)
 #'
-#' 
+#' Counts words and phrases per category from a user-defined lexicon, 
+#' LIWC-style: every matched term contributes its full document frequency to 
+#' the categories it matches.
+#' @section References:
+#' tausczik2010
+#'
+#' boyd2022
+#'
 #' @param data .
 #' @param textVar .
 #' @param lexicon One category per row with its terms as a comma-separated
 #'   list. A trailing * marks a prefix wildcard; multi-word terms are allowed.
-#'   The default rows are a working example: edit or remove them.
+#'   Terms longer than five words are ignored. The default rows are a working
+#'   example: edit or remove them.
 #' @param detectedWords .
 #' @return A results object containing:
 #' \tabular{llllll}{

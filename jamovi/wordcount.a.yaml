@@ -5,12 +5,12 @@ menuGroup: Text
 version: '1.0.0'
 jas: '1.2'
 
-description: |
-    Counts words and phrases per category from a user-defined lexicon,
-    LIWC-style: every matched term contributes its full document
-    frequency to the categories it matches.
-
-refs: [tausczik2010, boyd2022]
+description:
+    main: >-
+        Counts words and phrases per category from a user-defined
+        lexicon, LIWC-style: every matched term contributes its full
+        document frequency to the categories it matches.
+    references: [tausczik2010, boyd2022]
 
 options:
     - name: data
