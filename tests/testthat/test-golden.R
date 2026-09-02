@@ -21,7 +21,9 @@ test_that("R pipeline reproduces python golden output", {
   expected <- jsonlite::fromJSON(
     file.path(golden_dir, "expected.json"), simplifyVector = FALSE)
 
-  dict <- wc_parse_dictionary(dict_text)
+  # deliberate non-1:1 vs the deleted parser: duplicate category columns merge via union (wc_parse_lexicon_rows / builder semantics), not an error
+  # X cells beyond the header width are silently dropped (e.g. fixture row you*), matching the old parser's output for the golden fixture
+  dict <- make_dict(dict_text)
   got <- wc_analyze_corpus(docs, dict, collect_detected = TRUE)
 
   cats <- dict$categories

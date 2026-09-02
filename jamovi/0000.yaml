@@ -6,15 +6,19 @@ jms: '1.0'
 authors:
   - Gabriele Di Cicco
 maintainer: Gabriele Di Cicco
-description: LIWC-style word counting from user-supplied wordlists.
+description: >-
+  LIWC-style word counting from user-supplied wordlists. Counts follow classic
+  LIWC frequency semantics.
 analyses:
   - title: Word Count (LIWC-style)
     name: wordcount
     ns: wowordcount
     menuGroup: Text
     menuTitle: Word Count (LIWC-style)
-    description: |
-      Count words and phrases per category from user-supplied lexicon.
+    description: >-
+      Counts words and phrases per category from a user-defined lexicon,
+      LIWC-style: every matched term contributes its full document frequency to
+      the categories it matches.
     category: analyses
 usesNative: true
 minApp: 1.0.8

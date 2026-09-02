@@ -4,14 +4,12 @@
 Standalone replica of the wowordcount R counter (base-R module logic).
 Stdlib only: re, collections, json, pathlib.
 
-Counting follows CLASSIC LIWC frequency semantics (user ruling 2026-08-25,
-superseding the 2026-08-24 upstream-parity amendment): every token/n-gram
+Counting follows CLASSIC LIWC frequency semantics (user ruling 2026-08-25):
+every token/n-gram
 occurrence counts with its full document frequency (+f) toward each
 category it matches, AT MOST ONCE per category per token — an exact term
 and a wildcard prefix (or several overlapping prefixes) hitting the same
-category count a single +f. This differs from the legacy Streamlit
-WordCount app, which added +1 per distinct type for exact hits and
-accumulated wildcard hits once per matching prefix.
+category count a single +f.
 """
 import json
 import re

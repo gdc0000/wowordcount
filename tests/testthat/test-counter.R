@@ -1,7 +1,3 @@
-make_dict <- function(...) {
-  wc_parse_dictionary(paste(..., sep = "\n"))
-}
-
 test_that("required lengths derived from dictionary", {
   d <- make_dict(
     "DicTerm\tA\tB",
@@ -101,9 +97,31 @@ test_that("terms longer than max ngram size contribute no lengths", {
   expect_setequal(cfg$required_lengths, c(2L, 3L, 4L, 5L))
 })
 
-test_that("bare star prefix is ignored like upstream python", {
+test_that("bare star prefix is ignored", {
   d <- make_dict("DicTerm\tX", "*\tX", "dog\tX")
   cfg <- wc_prepare_config(d)
   res <- wc_count_document(c("cat", "dog"), cfg)
+  expect_equal(unname(res$counts["X"]), 1)
+})
+
+test_that("over-long and bare-star terms are absent from config buckets", {
+  d <- make_dict("DicTerm\tX",
+                 "one two three four five six*\tX",
+                 "*\tX",
+                 "dog\tX")
+  cfg <- wc_prepare_config(d)
+  expect_length(cfg$exact_multi_by_cat$X, 0)
+  expect_length(cfg$wildcard_single$X, 0)
+  expect_length(cfg$wildcard_multi$X, 0)
+  expect_setequal(cfg$exact_single_by_cat$X, "dog")
+})
+
+test_that("five-word term survives filtering and still matches", {
+  d <- make_dict("DicTerm\tX", "one two three four five\tX", "can*\tX")
+  s <- wc_dictionary_summary(d)
+  expect_equal(s$MultiWordTerms[s$Category == "X"], 1)
+  cfg <- wc_prepare_config(d)
+  res <- wc_count_document(
+    c("one", "two", "three", "four", "five"), cfg)
   expect_equal(unname(res$counts["X"]), 1)
 })

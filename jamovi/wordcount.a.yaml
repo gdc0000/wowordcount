@@ -5,6 +5,13 @@ menuGroup: Text
 version: '1.0.0'
 jas: '1.2'
 
+description:
+    main: >-
+        Counts words and phrases per category from a user-defined
+        lexicon, LIWC-style: every matched term contributes its full
+        document frequency to the categories it matches.
+    references: [tausczik2010, boyd2022]
+
 options:
     - name: data
       type: Data
@@ -36,10 +43,11 @@ options:
       description: |
         One category per row with its terms as a comma-separated list.
         A trailing * marks a prefix wildcard; multi-word terms are allowed.
+        Terms longer than five words are ignored.
         The default rows are a working example: edit or remove them.
 
     - name: detectedWords
-      title: Include detected words columns
+      title: Detected words columns
       type: Bool
       default: false
 

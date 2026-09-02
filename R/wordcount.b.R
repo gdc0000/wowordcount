@@ -1,9 +1,9 @@
 wc_resolve_dictionary <- function(lexicon) {
     dict <- wc_parse_lexicon_rows(lexicon)
     if (length(dict$categories) == 0L)
-        stop("The lexicon builder has no complete rows ",
-             "(a category with at least one term). Add one.",
-             call. = FALSE)
+        jmvcore::reject(paste0(
+            "The lexicon builder has no complete rows ",
+            "(a category with at least one term). Add one."))
     attr(dict, "source") <- "lexicon builder"
     dict
 }
@@ -13,6 +13,21 @@ wordcountClass <- R6::R6Class(
     "wordcountClass",
     inherit = wordcountBase,
     private = list(
+        .init = function() {
+            dict <- tryCatch(
+                wc_resolve_dictionary(self$options$lexicon),
+                error = function(e) NULL
+            )
+            if (is.null(dict))
+                return()
+
+            for (cat in dict$categories) {
+                self$results$dictSummary$addRow(rowKey = cat,
+                                                values = NULL)
+                self$results$catSummary$addRow(rowKey = cat,
+                                               values = NULL)
+            }
+        },
         .run = function() {
             dict <- wc_resolve_dictionary(self$options$lexicon)
 
@@ -20,18 +35,17 @@ wordcountClass <- R6::R6Class(
             tbl <- self$results$dictSummary
             summary_df <- wc_dictionary_summary(dict)
             for (i in seq_len(nrow(summary_df))) {
-                tbl$addRow(rowKey = summary_df$Category[i], values = list(
+                tbl$setRow(rowKey = summary_df$Category[i], values = list(
                     category = summary_df$Category[i],
                     exactTerms = summary_df$ExactTerms[i],
                     wildcardPrefixes = summary_df$WildcardPrefixes[i],
                     multiWordTerms = summary_df$MultiWordTerms[i]
                 ))
             }
-            if (nrow(summary_df) == 0L)
-                tbl$setNote(
-                    "noCats",
-                    "No categories were found in the dictionary."
-                )
+
+            # no text variable yet: show the dictionary summary only
+            if (is.null(self$options$textVar))
+                return()
 
             texts <- self$data[[self$options$textVar]]
 
@@ -49,7 +63,7 @@ wordcountClass <- R6::R6Class(
                 counts <- results[[count_col]]
                 percs <- results[[perc_col]]
                 doc_hits <- sum(counts > 0)
-                cat_tbl$addRow(rowKey = cat, values = list(
+                cat_tbl$setRow(rowKey = cat, values = list(
                     category = cat,
                     totalCount = sum(counts),
                     meanCount = if (n_docs > 0) mean(counts) else 0,
@@ -71,12 +85,16 @@ wordcountClass <- R6::R6Class(
             word_count_cols <- grep("_word_count$", names(results),
                                     value = TRUE)
             if (all(results$n_tokens == 0)) {
-                tbl$setNote(
+                cat_tbl$setNote(
                     "noHits",
                     "No tokens found in the selected text variable."
                 )
             } else if (length(word_count_cols) > 0L &&
                        all(unlist(results[word_count_cols]) == 0)) {
+                cat_tbl$setNote(
+                    "noHits",
+                    "The dictionary matched no words in the selected texts."
+                )
                 tbl$setNote(
                     "noHits",
                     "The dictionary matched no words in the selected texts."

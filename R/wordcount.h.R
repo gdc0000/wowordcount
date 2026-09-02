@@ -88,9 +88,7 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=0,
                 clearWith=list(
                     "textVar",
-                    "lexiconSource",
-                    "lexicon",
-                    "dictionary"),
+                    "lexicon"),
                 columns=list(
                     list(
                         `name`="category", 
@@ -115,9 +113,7 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=0,
                 clearWith=list(
                     "textVar",
-                    "lexiconSource",
-                    "lexicon",
-                    "dictionary"),
+                    "lexicon"),
                 columns=list(
                     list(
                         `name`="category", 
@@ -149,7 +145,10 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="statusNote",
                 title="Status",
-                visible=FALSE))
+                visible=FALSE,
+                clearWith=list(
+                    "textVar",
+                    "lexicon")))
             self$add(jmvcore::Output$new(
                 options=options,
                 name="saveResults",
@@ -157,9 +156,7 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 initInRun=TRUE,
                 clearWith=list(
                     "textVar",
-                    "lexiconSource",
                     "lexicon",
-                    "dictionary",
                     "detectedWords")))}))
 
 wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -185,12 +182,20 @@ wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
 #' Word Count (LIWC-style)
 #'
-#' 
+#' Counts words and phrases per category from a user-defined lexicon, 
+#' LIWC-style: every matched term contributes its full document frequency to 
+#' the categories it matches.
+#' @section References:
+#' tausczik2010
+#'
+#' boyd2022
+#'
 #' @param data .
 #' @param textVar .
 #' @param lexicon One category per row with its terms as a comma-separated
 #'   list. A trailing * marks a prefix wildcard; multi-word terms are allowed.
-#'   The default rows are a working example: edit or remove them.
+#'   Terms longer than five words are ignored. The default rows are a working
+#'   example: edit or remove them.
 #' @param detectedWords .
 #' @return A results object containing:
 #' \tabular{llllll}{

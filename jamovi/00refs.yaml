@@ -1,0 +1,14 @@
+---
+- id: tausczik2010
+  title: 'The psychological meaning of words: LIWC and computerized text analysis methods'
+  author: Tausczik, Y. R., and Pennebaker, J. W.
+  year: '2010'
+  journal: Journal of Language and Social Psychology, 29(1), 24-54
+  url: https://doi.org/10.1177/0261927X09351676
+
+- id: boyd2022
+  title: The development and psychometric properties of LIWC-22
+  author: Boyd, R. L., Ashokkumar, A., Seraj, S., and Pennebaker, J. W.
+  year: '2022'
+  publisher: University of Texas at Austin
+  url: https://www.liwc.app/
