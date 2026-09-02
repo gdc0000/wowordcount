@@ -1,6 +1,7 @@
-# Cleaning/tokenization parity port of app/text_analysis.py (WordCount).
-# Python \w matches Unicode word chars; (*UCP) switches PCRE to Unicode mode
-# so accented letters behave identically. Apostrophe preserved like the original.
+# Cleaning/tokenization for the counting engine.
+# (*UCP) switches PCRE to Unicode mode so \w and \s match Unicode word
+# chars and whitespace; accented letters survive cleaning. The
+# apostrophe is preserved so contractions like "don't" stay one token.
 
 wc_max_ngram_size <- 5L
 

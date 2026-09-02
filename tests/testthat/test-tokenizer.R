@@ -17,7 +17,7 @@ test_that("tokenize drops empties and splits on any whitespace", {
   expect_length(wc_tokenize(""), 0)
 })
 
-test_that("NBSP is treated as splitting whitespace (Python parity)", {
+test_that("NBSP is treated as splitting whitespace", {
   expect_setequal(wc_tokenize("perch\u00E9\u00A0citt\u00E0"), c("perch\u00e9", "citt\u00e0"))
   expect_setequal(wc_tokenize("a\u00A0b"), c("a", "b"))
 })

@@ -4,9 +4,9 @@ Title: LIWC-style Word Count Analyses
 Version: 1.0.0
 Authors@R: person("Gabriele", "Di Cicco", role = c("aut", "cre"),
     email = "gabriele.dicicco@gmail.com")
-Description: LIWC-style word count analysis for jamovi, inspired by the
-    classic WordCount application. Counts the full document frequency of
-    each matched term per category from user-supplied dictionaries.
+Description: LIWC-style word count analysis for jamovi. Counts the full
+    document frequency of each matched term per category from
+    user-supplied dictionaries.
 License: GPL (>= 2)
 Encoding: UTF-8
 Depends: R (>= 4.2)

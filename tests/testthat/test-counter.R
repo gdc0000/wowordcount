@@ -97,7 +97,7 @@ test_that("terms longer than max ngram size contribute no lengths", {
   expect_setequal(cfg$required_lengths, c(2L, 3L, 4L, 5L))
 })
 
-test_that("bare star prefix is ignored like upstream python", {
+test_that("bare star prefix is ignored", {
   d <- make_dict("DicTerm\tX", "*\tX", "dog\tX")
   cfg <- wc_prepare_config(d)
   res <- wc_count_document(c("cat", "dog"), cfg)

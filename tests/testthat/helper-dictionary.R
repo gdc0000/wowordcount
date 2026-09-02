@@ -1,4 +1,4 @@
-# translate legacy DicTerm TSV lines into the lexicon structure the
+# translate DicTerm TSV lines into the lexicon structure the
 # live parser expects: one entry per category, comma-joined terms
 make_dict <- function(...) {
   lines <- strsplit(paste(..., sep = "\n"), "\n", fixed = TRUE)[[1]]
