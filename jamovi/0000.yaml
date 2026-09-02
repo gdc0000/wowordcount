@@ -6,7 +6,10 @@ jms: '1.0'
 authors:
   - Gabriele Di Cicco
 maintainer: Gabriele Di Cicco
-description: LIWC-style word counting from user-supplied wordlists.
+description: >-
+  LIWC-style word counting from user-supplied wordlists. Counts follow
+  classic LIWC frequency semantics; results are not directly comparable
+  to the original WordCount application.
 analyses:
   - title: Word Count (LIWC-style)
     name: wordcount

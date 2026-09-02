@@ -9,7 +9,7 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Text variable
+        label: Text Variable
         children:
           - type: VariablesListBox
             name: textVar
@@ -26,7 +26,7 @@ children:
       - type: ListBox
         name: lexicon
         height: large
-        showColumnHeaders: false
+        showColumnHeaders: true
         fullRowSelect: true
         stretchFactor: 1
         addButton: Add category
@@ -35,14 +35,18 @@ children:
           A trailing * marks a prefix wildcard; multi-word terms are allowed.
         columns:
           - name: category
+            label: Category
             stretchFactor: 1
             template:
               type: TextBox
+              label: ''
               format: string
           - name: terms
+            label: Terms
             stretchFactor: 2
             template:
               type: TextBox
+              label: ''
               format: string
   - type: LayoutBox
     margin: large

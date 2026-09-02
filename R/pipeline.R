@@ -1,12 +1,36 @@
 wc_sanitize_name <- function(x) {
   x <- gsub(" ", "_", x, fixed = TRUE)
-  gsub("[^A-Za-z0-9_]", "", x)
+  # strip only non-word characters so Unicode letters (accents, CJK,
+  # digits) survive; (*UCP) makes \w Unicode-aware under perl = TRUE
+  gsub("(*UCP)[^\\w]", "", x, perl = TRUE)
 }
 
 wc_analyze_corpus <- function(texts, dict, collect_detected = FALSE) {
   cfg <- wc_prepare_config(dict)
   categories <- dict$categories
   san <- vapply(categories, wc_sanitize_name, character(1))
+
+  # distinct categories must sanitise to distinct names, or their
+  # output columns would silently overwrite each other
+  if (anyDuplicated(san)) {
+    dup_san <- unique(san[duplicated(san)])
+    dup_orig <- categories[san %in% dup_san]
+    jmvcore::reject(paste0(
+      "Category names '", paste(dup_san, collapse = "', '"),
+      "' collide after sanitisation: they are produced by the ",
+      "categories '", paste(dup_orig, collapse = "', '"),
+      "'. Rename the categories so they differ by more than punctuation."))
+  }
+
+  # a category without a single letter or number cannot name a column
+  if (any(san == "")) {
+    empty_orig <- categories[san == ""]
+    jmvcore::reject(paste0(
+      "Category name(s) ", paste0("'", empty_orig, "'", collapse = ", "),
+      " contain no letters or numbers after removing punctuation; ",
+      "a category name must contain at least one letter or number."))
+  }
+
   n_docs <- length(texts)
 
   n_tokens <- integer(n_docs)

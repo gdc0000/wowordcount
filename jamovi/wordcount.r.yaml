@@ -10,9 +10,7 @@ items:
       rows: 0
       clearWith:
         - textVar
-        - lexiconSource
         - lexicon
-        - dictionary
       columns:
         - name: category
           title: Category
@@ -33,9 +31,7 @@ items:
       rows: 0
       clearWith:
         - textVar
-        - lexiconSource
         - lexicon
-        - dictionary
       columns:
         - name: category
           title: Category
@@ -62,6 +58,9 @@ items:
       title: Status
       type: Preformatted
       visible: false
+      clearWith:
+        - textVar
+        - lexicon
 
     - name: saveResults
       title: Append results to the data set
@@ -69,7 +68,5 @@ items:
       initInRun: true
       clearWith:
         - textVar
-        - lexiconSource
         - lexicon
-        - dictionary
         - detectedWords

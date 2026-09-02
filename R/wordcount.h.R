@@ -88,9 +88,7 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=0,
                 clearWith=list(
                     "textVar",
-                    "lexiconSource",
-                    "lexicon",
-                    "dictionary"),
+                    "lexicon"),
                 columns=list(
                     list(
                         `name`="category", 
@@ -115,9 +113,7 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=0,
                 clearWith=list(
                     "textVar",
-                    "lexiconSource",
-                    "lexicon",
-                    "dictionary"),
+                    "lexicon"),
                 columns=list(
                     list(
                         `name`="category", 
@@ -149,7 +145,10 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="statusNote",
                 title="Status",
-                visible=FALSE))
+                visible=FALSE,
+                clearWith=list(
+                    "textVar",
+                    "lexicon")))
             self$add(jmvcore::Output$new(
                 options=options,
                 name="saveResults",
@@ -157,9 +156,7 @@ wordcountResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 initInRun=TRUE,
                 clearWith=list(
                     "textVar",
-                    "lexiconSource",
                     "lexicon",
-                    "dictionary",
                     "detectedWords")))}))
 
 wordcountBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(

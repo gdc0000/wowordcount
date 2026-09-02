@@ -31,30 +31,22 @@ wc_match_mask <- function(keys, exact_keys, prefixes) {
 
 wc_prepare_config <- function(dict) {
   categories <- dict$categories
-  es_lookup <- list()
-  em_lookup <- list()
   es_by_cat <- wc_dict_skeleton(categories)
   em_by_cat <- wc_dict_skeleton(categories)
   wildcard_single <- list()
   wildcard_multi <- list()
   req_len_list <- list()
 
-  add_to_named_list <- function(lst, key, val) {
-    lst[[key]] <- if (is.null(lst[[key]])) val else c(lst[[key]], val)
-    lst
-  }
-
   for (cat in categories) {
     es_by_cat[[cat]] <- unique(as.character(dict$exact_single[[cat]]))
     em_by_cat[[cat]] <- unique(as.character(dict$exact_multi[[cat]]))
-    for (term in es_by_cat[[cat]])
-      es_lookup <- add_to_named_list(es_lookup, term, cat)
     for (term in em_by_cat[[cat]]) {
-      em_lookup <- add_to_named_list(em_lookup, term, cat)
       k <- length(strsplit(term, " ", fixed = TRUE)[[1]])
       if (2 <= k && k <= wc_max_ngram_size)
         req_len_list[[length(req_len_list) + 1L]] <- k
     }
+    # empty prefixes are filtered upstream in wc_route_term_rows; the
+    # nzchar guard is kept as a defensive invariant
     for (prefix in dict$wildcard_single[[cat]])
       if (nzchar(prefix))
         wildcard_single[[cat]] <- c(wildcard_single[[cat]], prefix)
@@ -70,8 +62,6 @@ wc_prepare_config <- function(dict) {
 
   list(
     categories = categories,
-    exact_single_lookup = es_lookup,
-    exact_multi_lookup = em_lookup,
     exact_single_by_cat = es_by_cat,
     exact_multi_by_cat = em_by_cat,
     wildcard_single = wildcard_single,
