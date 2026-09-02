@@ -62,7 +62,9 @@ def main():
             if cell != "X":
                 continue
             is_wild = term.endswith("*")
-            clean = term[:-1].strip() if is_wild else term.strip()
+            # terms are case-folded like the tokenizer's documents,
+            # mirroring wc_route_term_rows
+            clean = (term[:-1] if is_wild else term).strip().lower()
             multi = len(clean.split()) > 1
             bucket = (
                 (wildcard_multi if multi else wildcard_single) if is_wild

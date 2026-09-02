@@ -18,8 +18,11 @@ wc_route_term_rows <- function(rows, categories) {
     term <- row$term
     hit_cats <- row$cats
     is_wild <- endsWith(term, "*")
-    clean_term <- trimws(gsub("[[:space:]]+", " ",
-                              sub("\\*$", "", term)))
+    # terms are case-folded with the same tolower the tokenizer applies
+    # to documents, so "Dog" matches "dog"; whitespace runs are
+    # normalised to the single-space joins n-grams use
+    clean_term <- tolower(trimws(gsub("[[:space:]]+", " ",
+                                      sub("\\*$", "", term))))
     n_words <- length(strsplit(clean_term, "[[:space:]]+", perl = TRUE)[[1]])
 
     # drop terms that can never match (counted in the dictionary summary

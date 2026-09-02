@@ -114,7 +114,8 @@ test_that("unicode stems survive the filter", {
   d <- wc_parse_lexicon_rows(list(
     list(category = "X", terms = "Émotion*, très")
   ))
-  expect_setequal(d$wildcard_single$X, "Émotion")
+  # accents survive; terms are case-folded like documents
+  expect_setequal(d$wildcard_single$X, "émotion")
   expect_setequal(d$exact_single$X, "très")
   s <- wc_dictionary_summary(d)
   expect_equal(s$WildcardPrefixes[s$Category == "X"], 1)

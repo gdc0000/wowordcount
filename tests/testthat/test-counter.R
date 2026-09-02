@@ -104,6 +104,15 @@ test_that("bare star prefix is ignored", {
   expect_equal(unname(res$counts["X"]), 1)
 })
 
+test_that("terms are case-folded like documents", {
+  d <- make_dict("DicTerm\tX", "Dog\tX", "Can*\tX")
+  cfg <- wc_prepare_config(d)
+  expect_equal(cfg$exact_single_by_cat$X, "dog")
+  expect_equal(cfg$wildcard_single$X, "can")
+  res <- wc_count_document(wc_tokenize("dog CANARY cat"), cfg)
+  expect_equal(unname(res$counts["X"]), 2)
+})
+
 test_that("over-long and bare-star terms are absent from config buckets", {
   d <- make_dict("DicTerm\tX",
                  "one two three four five six*\tX",
